@@ -1,0 +1,77 @@
+{
+  "canvas_formats": [
+    {
+      "type": "financial_summary",
+      "description": "Generates a visual summary of financial data, including key-value pairs and a bar chart. Expected data includes income statement metrics.",
+      "expected_data_schema": {
+        "type": "object",
+        "properties": {
+          "revenue": { "type": "number", "description": "Company revenue" },
+          "profit": { "type": "number", "description": "Company profit" },
+          "expenses": { "type": "number", "description": "Company expenses" }
+        },
+        "example": {
+          "revenue": 5000000,
+          "profit": 1000000
+        }
+      }
+    },
+    {
+      "type": "key_value_pairs",
+      "description": "Displays data as a list of key-value pairs. Useful for presenting structured information.",
+      "expected_data_schema": {
+        "type": "object",
+        "additionalProperties": { "type": "string" }
+      },
+      "example": {
+        "Company": "Tech Innovations",
+        "CEO": "Jane Doe",
+        "Location": "San Francisco"
+      }
+    },
+    {
+      "type": "bar_chart",
+      "description": "Generates a bar chart from provided labels and values. Data should be numerical.",
+      "expected_data_schema": {
+        "type": "object",
+        "properties": {
+          "labels": { "type": "array", "items": { "type": "string" } },
+          "datasets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": { "type": "string" },
+                "data": { "type": "array", "items": { "type": "number" } }
+              },
+              "required": ["label", "data"]
+            }
+          }
+        },
+        "required": ["labels", "datasets"],
+        "example": {
+          "labels": ["Category A", "Category B"],
+          "datasets": [
+            { "label": "Series 1", "data": [10, 20] }
+          ]
+        }
+      }
+    },
+    {
+      "type": "document_preview",
+      "description": "Displays a preview of a document, including its path and a text snippet. Useful for showing context.",
+      "expected_data_schema": {
+        "type": "object",
+        "properties": {
+          "file_path": { "type": "string", "description": "Absolute path to the document" },
+          "preview_text": { "type": "string", "description": "A short text snippet from the document" }
+        },
+        "required": ["file_path", "preview_text"],
+        "example": {
+          "file_path": "C:\\Users\\YourUser\\projects\\neuralstark\\neuralstark\\knowledge_base\\internal\\report.pdf",
+          "preview_text": "This is a preview of the report content..."
+        }
+      }
+    }
+  ]
+}

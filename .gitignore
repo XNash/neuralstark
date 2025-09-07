@@ -1,0 +1,43 @@
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+venv/
+celerybeat-schedule
+.env
+
+# Database
+chroma_db/
+*.sqlite3
+
+# Node.js / Frontend
+/frontend/node_modules/
+/frontend/dist/
+/frontend/package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.vite/
+
+# Build artifacts
+build/
+
+# Temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# Large archives
+*.zip
+
+# Knowledge Base Files
+neuralstark/knowledge_base/external/
+neuralstark/knowledge_base/internal/

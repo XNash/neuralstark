@@ -1,0 +1,24 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "default",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.js",
+    "css": "src/index.css",
+    "baseColor": "slate",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "src/components",
+    "utils": "src/lib/utils",
+    "ui": "src/components/ui"
+  }
+}</content>
+</xai:function_call">Now, let me install some basic shadcn/ui components that we'll need for the chat interface. Let me start with Button and Input. Since npx is not working, I'll manually create the components.
+
+First, let me create the components/ui directory and the Button component. 
+
+<xai:function_call name="write">
+<parameter name="filePath">C:\Users\tefis\Documents\projects\neuralstark\frontend\src\components\ui\button.tsx
