@@ -1,14 +1,20 @@
 # NeuralStark
 
-NeuralStark is a multi-platform AI assistant designed to provide intelligent assistance, manage knowledge bases, and process documents. It features a web-based frontend built with React and a powerful Python backend handling AI/ML tasks, document parsing, and data management.
+NeuralStark is a multi-platform AI assistant powered by **Xynorash**, an AI agent trained by NeuralStark to help professionals with their firm, societies, or work data. Xynorash provides intelligent assistance, manages knowledge bases, processes documents, and generates dynamic data visualizations.
 
 ## Features
 
-*   **Intelligent AI Assistance:** Leverage AI/ML capabilities for various tasks.
-*   **Knowledge Base Management:** Organize and query internal and external documents.
-*   **Document Parsing:** Process and extract information from various document formats (PDF, DOCX, ODT, XLSX, etc.).
-*   **Web User Interface:** Intuitive and responsive frontend for interaction.
-*   **Asynchronous Task Processing:** Utilizes Celery for background tasks.
+*   **Intelligent AI Assistance (Xynorash)**:
+    *   **RAG-based Conversational AI**: Xynorash leverages Retrieval-Augmented Generation (RAG) to provide context-aware and accurate responses based on your internal and external documents.
+    *   **Multilingual Support**: Configured to understand and respond in French, facilitating seamless interaction.
+    *   **Tool-Use Capabilities**: Xynorash can utilize specialized tools for tasks like generating PDF reports (financial reviews, quotes) and creating interactive data visualizations.
+*   **Comprehensive Knowledge Base Management**:
+    *   **Multi-format Document Processing**: Automatically processes and extracts information from a wide range of document formats including PDF, DOCX, ODT, XLSX, CSV, Markdown, and JSON.
+    *   **Automated Management**: Features a file system watcher that monitors knowledge base directories for new, modified, or deleted documents, ensuring the vector store is always up-to-date.
+*   **Dynamic Data Visualization**:
+    *   **Interactive Canvas Generation**: Generate various types of charts (bar, pie, combo charts), tables, and dashboards directly from your data. The `CanvasGenerator` tool provides pure JSON output for seamless frontend integration.
+*   **Web User Interface**: An intuitive and responsive frontend built with React for easy interaction with Xynorash.
+*   **Asynchronous Task Processing**: Utilizes Celery for efficient background tasks, ensuring the application remains responsive during heavy workloads like document indexing.
 
 ## Technologies Used
 
@@ -20,10 +26,13 @@ NeuralStark is a multi-platform AI assistant designed to provide intelligent ass
 
 ### Backend
 *   **Python:** The primary language for backend logic and AI/ML.
-*   **Flask/FastAPI (assumed):** Web framework for building APIs.
-*   **Celery:** An asynchronous task queue/job queue based on distributed message passing.
+*   **FastAPI:** A modern, high-performance web framework for building APIs.
+*   **LangChain:** The framework used for orchestrating the AI agent, integrating LLMs, tools, and the knowledge base.
+*   **Google Generative AI**: Powers the Large Language Model (LLM) for conversational AI and reasoning.
+*   **Hugging Face Embeddings**: Used for generating document embeddings for semantic search.
+*   **Celery:** An asynchronous task queue/job queue based on distributed message passing, with Redis as the message broker.
 *   **ChromaDB:** An open-source embedding database for AI applications.
-*   **Other Libraries:** `requirements.txt` contains specific dependencies for document parsing, AI models, etc.
+*   **Other Libraries:** `requirements.txt` contains specific dependencies for document parsing (e.g., `pypdf`, `python-docx`, `odfdo`, `pandas`), PDF generation (`reportlab`), etc.
 
 ## Prerequisites
 
@@ -63,19 +72,25 @@ pip install -r requirements.txt
 
 #### Environment Variables
 
-Create a `.env` file in the `neuralstark/neuralstark/` directory. You might need to add specific configurations here, such as API keys, database connection strings, or other settings required by the application. Refer to `config.py` for expected variables.
+Create a `.env` file in the `neuralstark/neuralstark/` directory. This file will store sensitive information and configuration settings.
 
 ```
-# Example .env content (adjust as needed)
-# DATABASE_URL=sqlite:///./chroma.sqlite3
-# CELERY_BROKER_URL=redis://localhost:6379/0
-# CELERY_RESULT_BACKEND=redis://localhost:6379/0
+# Example .env content
+LLM_API_KEY="YOUR_GOOGLE_GEMINI_API_KEY"
+LLM_MODEL="gemini-pro" # Or another suitable Gemini model
+EMBEDDING_MODEL_NAME="sentence-transformers/all-MiniLM-L6-v2" # Or another suitable embedding model
+REDIS_HOST="localhost"
+REDIS_PORT=6379
+REDIS_DB=0
+INTERNAL_KNOWLEDGE_BASE_PATH="./knowledge_base/internal"
+EXTERNAL_KNOWLEDGE_BASE_PATH="./knowledge_base/external"
+CHROMA_DB_PATH="./chroma_db"
 ```
 
 #### Running the Backend Application
 
 ```bash
-python main.py
+uvicorn neuralstark.main:app --reload
 ```
 This will start the main backend API server.
 
@@ -102,7 +117,7 @@ celery -A celery_app beat -l info
 Navigate to the frontend directory and install its dependencies.
 
 ```bash
-cd ../frontend # From neuralstark/neuralstark, go back to neuralstark/frontend
+cd frontend # From the project root
 npm install # or yarn install
 ```
 
@@ -124,7 +139,7 @@ This will start the frontend development server, usually accessible at `http://l
 
 ## Usage
 
-Once both the backend and frontend servers are running, open your web browser and navigate to the address provided by the frontend development server (e.g., `http://localhost:5173`). You can then interact with the NeuralStark AI assistant through the web interface.
+Once both the backend and frontend servers are running, open your web browser and navigate to the address provided by the frontend development server (e.g., `http://localhost:5173`). You can then interact with **Xynorash**, the NeuralStark AI assistant, through the web interface.
 
 ## Contributing
 
