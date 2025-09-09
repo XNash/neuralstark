@@ -109,7 +109,7 @@ celery -A celery_app worker -l info
 ```
 If you need to run Celery Beat for scheduled tasks:
 ```bash
-celery -A celery_app beat -l info
+celery -A neuralstark.celery_app beat -l info
 ```
 
 ### 3. Frontend Setup
