@@ -105,7 +105,7 @@ cd neuralstark/neuralstark
 # On macOS/Linux
 source venv/bin/activate
 
-celery -A celery_app worker -l info
+celery -A neuralstark.celery_app worker -l info
 ```
 If you need to run Celery Beat for scheduled tasks:
 ```bash
