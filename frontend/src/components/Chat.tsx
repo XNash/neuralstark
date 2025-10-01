@@ -1,10 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { ScrollArea } from './ui/scroll-area';
 import { Badge } from './ui/badge';
-import { apiClient, Personality } from '../lib/api';
+import { apiClient, type Personality, type CanvasTemplate } from '../lib/api-client';
 import { Send, MessageSquare, Bot, User, AlertTriangle, Mic, Plus } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
@@ -20,8 +19,12 @@ import { AdvancedFilterUI } from './AdvancedFilterUI';
 interface Message {
   id: string;
   sender: 'user' | 'ai';
-  content: string | { canvas: any };
+  content: string | { canvas: CanvasTemplate };
   timestamp: Date;
+}
+
+function isCanvasContent(content: any): content is { canvas: CanvasTemplate } {
+    return typeof content === 'object' && content !== null && 'canvas' in content;
 }
 
 export const Chat: React.FC = () => {
@@ -120,7 +123,7 @@ export const Chat: React.FC = () => {
       return;
     }
     const lastMessage = messages[messages.length - 1];
-    if (!lastMessage || typeof lastMessage.content !== 'object' || !('canvas' in lastMessage.content)) {
+    if (!lastMessage || !isCanvasContent(lastMessage.content)) {
       setChatError("Aucun canevas récent à enregistrer comme modèle.");
       return;
     }
@@ -133,7 +136,7 @@ export const Chat: React.FC = () => {
       setUserCanvasTemplates(templates.user_templates);
     } catch (error) {
       console.error("Error saving template:", error);
-      setChatError(error instanceof Error ? error.message : 'Une erreur est survenue lors de l\'enregistrement du modèle.');
+      setChatError(error instanceof Error ? error.message : "Une erreur est survenue lors de l\u0027enregistrement du modèle.");
     } finally {
       setIsSavingTemplate(false);
     }
@@ -172,7 +175,7 @@ export const Chat: React.FC = () => {
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
-        content: processedResponse,
+        content: processedResponse as Message['content'],
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, aiMessage]);
@@ -229,12 +232,12 @@ export const Chat: React.FC = () => {
                 ))}
               </SelectContent>
             </Select>
-            <Select onValueChange={setSelectedCanvasTemplate} value={selectedCanvasTemplate || ''} disabled={isLoading}>
+            <Select onValueChange={setSelectedCanvasTemplate} value={selectedCanvasTemplate === null ? undefined : selectedCanvasTemplate} disabled={isLoading}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Sélectionner un modèle" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">-- Aucun --</SelectItem>
+                <SelectItem value={null}>-- Aucun --</SelectItem>
                 <optgroup label="Défaut">
                   {Object.entries(defaultCanvasTemplates).map(([key, template]) => (
                     <SelectItem key={key} value={key}>{template.name || key}</SelectItem>
@@ -249,7 +252,7 @@ export const Chat: React.FC = () => {
             </Select>
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" size="icon" disabled={isLoading || !messages.length || typeof messages[messages.length - 1].content !== 'object' || !('canvas' in messages[messages.length - 1].content)}>
+                <Button variant="outline" size="icon" disabled={isLoading || !messages.length || !isCanvasContent(messages[messages.length - 1].content)}>
                   <Plus className="h-4 w-4" />
                 </Button>
               </DialogTrigger>
@@ -289,13 +292,13 @@ export const Chat: React.FC = () => {
                 messages.map((message) => (
                   <div key={message.id} className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}> 
                     {message.sender === 'ai' && <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0"><Bot className="h-4 w-4 text-primary-foreground" /></div>}
-                    <div className={`max-w-[80%] p-3 rounded-xl shadow-md ${message.sender === 'user' ? 'bg-primary text-primary-foreground ml-auto rounded-br-none' : 'bg-muted rounded-bl-none'}`}>
+                    <div className={`max-w-[80%] p-3 rounded-xl shadow-md ${message.sender === 'user' ? 'bg-primary text-primary-foreground ml-auto rounded-br-none' : 'bg-muted rounded-bl-none'}`}> 
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-xs font-medium">{message.sender === 'user' ? 'Vous' : 'NeuralStark'}</span>
                         <span className="text-xs text-muted-foreground">{message.timestamp.toLocaleTimeString()}</span>
                       </div>
                       <div className="whitespace-pre-wrap text-sm">
-                        {typeof message.content === 'object' && 'canvas' in message.content ? (
+                        {isCanvasContent(message.content) ? (
                           (() => {
                             const canvasData = message.content.canvas;
                             switch (canvasData.type) {
@@ -314,7 +317,7 @@ export const Chat: React.FC = () => {
                     </div>
                     {message.sender === 'user' && <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center flex-shrink-0"><User className="h-4 w-4 text-secondary-foreground" /></div>}
                   </div>
-                ))
+                )) 
               )}
               {isLoading && <div className="flex gap-3 justify-start"><div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0"><Bot className="h-4 w-4 text-muted-foreground" /></div><div className="bg-muted max-w-[70%] p-3 rounded-xl rounded-bl-none shadow-md"><div className="flex items-center gap-2"><span className="text-xs font-medium">NeuralStark réfléchit...</span></div></div></div>}
               <div ref={messagesEndRef} />

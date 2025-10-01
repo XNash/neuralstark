@@ -1,6 +1,6 @@
 // frontend/src/components/canvas/ComboChartCanvas.tsx
 import React from 'react';
-import { Bar, Line } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import {
   Chart as ChartJS,
@@ -82,7 +82,7 @@ const ComboChartCanvas: React.FC<ComboChartCanvasProps> = ({ canvasData }) => {
         position: options?.legend?.position || 'top',
       },
       tooltip: {
-        mode: 'index',
+        mode: 'index' as const,
         intersect: false,
         callbacks: {
           label: function(context: any) {

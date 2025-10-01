@@ -4,8 +4,9 @@ import { Input } from './ui/input'; // Add this line
 import { Badge } from './ui/badge';
 import { ScrollArea } from './ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card'; // Re-add this line
-import { apiClient } from '../lib/api';
-import { FileText, RefreshCw, Database, Search, AlertCircle, Upload, Trash2, CheckCircle } from 'lucide-react';
+import { apiClient } from "../lib/api-client";
+import { FileText, RefreshCw, Database, Search, AlertCircle, Trash2, CheckCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';

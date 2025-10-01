@@ -1,14 +1,9 @@
-import { useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/Dashboard';
 import { Chat } from './components/Chat';
 import { Files } from './components/Files';
 import { ScrollArea } from './components/ui/scroll-area';
-
 import { Scheduling } from './components/Scheduling';
-
-// ... (rest of the imports)
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 
 function App() {

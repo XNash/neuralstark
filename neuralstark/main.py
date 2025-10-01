@@ -189,8 +189,21 @@ async def set_personality(request: SetPersonalityRequest):
 
 @app.get("/documents")
 async def list_documents():
-    # ... (implementation unchanged)
-    return {}
+    try:
+        current_vector_store = Chroma(persist_directory=settings.CHROMA_DB_PATH, embedding_function=embeddings)
+        results = current_vector_store.get(include=['metadatas'])
+        
+        unique_sources = set()
+        if results and 'metadatas' in results:
+            for metadata in results['metadatas']:
+                if 'source' in metadata:
+                    unique_sources.add(metadata['source'])
+        
+        return {"indexed_documents": list(unique_sources)}
+    except Exception as e:
+        logging.error(f"Error listing documents: {e}")
+        # Ensure a consistent response structure even on error
+        return {"indexed_documents": []}
 
 @app.post("/documents/upload")
 async def upload_document(source_type: str = Form(...), file: UploadFile = File(...), tags: Optional[str] = Form(None)):

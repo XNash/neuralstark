@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
-import { apiClient } from '../lib/api';
+import { apiClient } from '../lib/api-client';
 import {
   MessageSquare,
   FileText,

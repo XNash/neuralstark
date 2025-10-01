@@ -15,8 +15,6 @@ import {
 
 interface SidebarProps {
   className?: string;
-  activeTab: 'dashboard' | 'chat' | 'files';
-  onTabChange: (tab: 'dashboard' | 'chat' | 'files') => void;
 }
 
 const sidebarItems = [
@@ -55,11 +53,7 @@ const quickActions = [
   },
 ];
 
-export const Sidebar: React.FC<SidebarProps> = ({
-  className,
-  activeTab,
-  onTabChange,
-}) => {
+export const Sidebar: React.FC<SidebarProps> = ({ className }) => {
   return (
     <div className={cn("pb-12 w-64", className)}>
       <div className="space-y-4 py-4">
@@ -77,15 +71,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {sidebarItems.map((item) => (
               <Button
                 key={item.id}
-                variant={activeTab === item.id ? "secondary" : "ghost"}
+                variant={"ghost"}
                 className="w-full justify-start"
-                onClick={() => onTabChange(item.id)}
               >
                 <item.icon className="mr-2 h-4 w-4" />
                 {item.id === 'dashboard' ? 'Tableau de Bord' : item.id === 'chat' ? 'Chat' : 'Fichiers'}
-                {activeTab === item.id && (
-                  <div className="ml-auto w-2 h-2 bg-primary rounded-full" />
-                )}
               </Button>
             ))}
           </div>
