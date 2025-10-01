@@ -4,72 +4,25 @@ import { Input } from './ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { ScrollArea } from './ui/scroll-area';
 import { Badge } from './ui/badge';
-import { Progress } from './ui/progress';
-import { apiClient } from '../lib/api';
-import { Send, MessageSquare, Bot, User, AlertTriangle, TrendingUp, Users, Star, Target } from 'lucide-react';
+import { apiClient, Personality } from '../lib/api';
+import { Send, MessageSquare, Bot, User, AlertTriangle, Mic, Plus } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import ReactMarkdown from 'react-markdown';
 import BarChartCanvas from './canvas/BarChartCanvas';
 import PieChartCanvas from './canvas/PieChartCanvas';
 import TableCanvas from './canvas/TableCanvas';
 import KpiDashboardCanvas from './canvas/KpiDashboardCanvas';
 import ComboChartCanvas from './canvas/ComboChartCanvas';
-import { Bar, Line, Pie, Doughnut, Scatter, Radar, PolarArea } from 'react-chartjs-2';
-import { Table, TableHeader, TableBody, TableCell, TableHead, TableRow, TableCaption } from './ui/table';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  PointElement,
-  LineElement,
-  RadialLinearScale,
-  TimeScale,
-  Filler,
-} from 'chart.js';
-import 'chartjs-adapter-date-fns';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  PointElement,
-  LineElement,
-  RadialLinearScale,
-  TimeScale,
-  Filler
-);
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { AdvancedFilterUI } from './AdvancedFilterUI';
 
 interface Message {
   id: string;
   sender: 'user' | 'ai';
-  content: string | { canvas: any }; // Update content type to handle canvas objects
+  content: string | { canvas: any };
   timestamp: Date;
 }
-
-// Utility function to get icon component (kept for other potential uses, though not directly used for canvas rendering)
-const getIconComponent = (iconName: string): React.ComponentType<any> => {
-  switch (iconName) {
-    case 'trending_up':
-      return TrendingUp;
-    case 'users':
-      return Users;
-    case 'star':
-      return Star;
-    case 'target':
-      return Target;
-    default:
-      return TrendingUp; // Fallback to a default icon
-  }
-};
 
 export const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -77,10 +30,114 @@ export const Chat: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const [availablePersonalities, setAvailablePersonalities] = useState<{ [key: string]: Personality }>({});
+  const [currentPersonalityKey, setCurrentPersonalityKey] = useState<string>('default');
+  const [defaultCanvasTemplates, setDefaultCanvasTemplates] = useState<{ [key: string]: any }>({});
+  const [userCanvasTemplates, setUserCanvasTemplates] = useState<{ [key: string]: any }>({});
+  const [selectedCanvasTemplate, setSelectedCanvasTemplate] = useState<string | null>(null);
+  const [newTemplateName, setNewTemplateName] = useState('');
+  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState({});
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        const [p, t] = await Promise.all([
+          apiClient.getPersonalities(),
+          apiClient.getCanvasTemplates(),
+        ]);
+        setAvailablePersonalities(p.available_personalities);
+        setCurrentPersonalityKey(p.current_personality);
+        setDefaultCanvasTemplates(t.default_templates);
+        setUserCanvasTemplates(t.user_templates);
+      } catch (error) {
+        console.error("Error fetching initial data:", error);
+        setChatError("Impossible de charger les données initiales.");
+      }
+    };
+    fetchInitialData();
+  }, []);
+
+  const handleFilterChange = (filters: any) => {
+    setAdvancedFilters(filters);
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorderRef.current = new MediaRecorder(stream);
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        audioChunksRef.current.push(event.data);
+      };
+      mediaRecorderRef.current.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        audioChunksRef.current = [];
+        await sendAudioForTranscription(audioBlob);
+      };
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
+      setChatError(null);
+    } catch (error) {
+      console.error("Error starting recording:", error);
+      setChatError("Impossible de démarrer l'enregistrement. Assurez-vous que le microphone est autorisé.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const sendAudioForTranscription = async (audioBlob: Blob) => {
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append('audio_file', audioBlob, 'audio.webm');
+      const response = await apiClient.stt(formData);
+      if (response.text) {
+        setInputValue(response.text);
+      }
+    } catch (error) {
+      console.error("Error sending audio for transcription:", error);
+      setChatError(error instanceof Error ? error.message : 'Une erreur est survenue lors de la transcription.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSaveTemplate = async () => {
+    if (!newTemplateName.trim()) {
+      setChatError("Le nom du modèle ne peut pas être vide.");
+      return;
+    }
+    const lastMessage = messages[messages.length - 1];
+    if (!lastMessage || typeof lastMessage.content !== 'object' || !('canvas' in lastMessage.content)) {
+      setChatError("Aucun canevas récent à enregistrer comme modèle.");
+      return;
+    }
+
+    setIsSavingTemplate(true);
+    try {
+      await apiClient.saveCanvasTemplate(newTemplateName, lastMessage.content.canvas);
+      setNewTemplateName('');
+      const templates = await apiClient.getCanvasTemplates();
+      setUserCanvasTemplates(templates.user_templates);
+    } catch (error) {
+      console.error("Error saving template:", error);
+      setChatError(error instanceof Error ? error.message : 'Une erreur est survenue lors de l\'enregistrement du modèle.');
+    } finally {
+      setIsSavingTemplate(false);
+    }
+  };
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -98,8 +155,7 @@ export const Chat: React.FC = () => {
     setChatError(null);
 
     try {
-      const response = await apiClient.chat(inputValue);
-      
+      const response = await apiClient.chat(inputValue, selectedCanvasTemplate, advancedFilters);
       let processedResponse = response.response;
 
       if (typeof processedResponse === 'string') {
@@ -109,31 +165,23 @@ export const Chat: React.FC = () => {
             processedResponse = JSON.parse(jsonMatch[1]);
           } catch (e) {
             console.error("Failed to parse JSON from markdown block:", e);
-            // Fallback to original string if parsing fails
           }
         }
       }
 
-      // Now use processedResponse instead of response.response in the subsequent logic
-      if (typeof processedResponse === 'object' && processedResponse !== null && 'canvas' in processedResponse) {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { id: (Date.now() + 1).toString(), sender: 'ai', content: { canvas: processedResponse.canvas }, timestamp: new Date() },
-        ]);
-      } else {
-        // Regular text response (or if JSON parsing failed, it will be the original string)
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { id: (Date.now() + 1).toString(), sender: 'ai', content: processedResponse as string, timestamp: new Date() },
-        ]);
-      }
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        sender: 'ai',
+        content: processedResponse,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, aiMessage]);
 
     } catch (error) {
-      setChatError(error instanceof Error ? error.message : 'Une erreur inconnue est survenue.');
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: `Erreur : ${error instanceof Error ? error.message : 'Erreur inconnue'}`, 
         sender: 'ai',
+        content: `Erreur : ${error instanceof Error ? error.message : 'Erreur inconnue'}`, 
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -149,24 +197,18 @@ export const Chat: React.FC = () => {
     }
   };
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(value);
-  };
-
-  const formatNumber = (value: number, format?: string) => {
-    switch (format) {
-      case 'currency':
-        return formatCurrency(value);
-      case 'percentage':
-        return `${value}%`;
-      case 'rating':
-        return `${value}/5`;
-      default:
-        return value.toLocaleString('fr-FR');
+  const handlePersonalityChange = async (newPersonalityKey: string) => {
+    setIsLoading(true);
+    try {
+      await apiClient.setPersonality(newPersonalityKey);
+      setCurrentPersonalityKey(newPersonalityKey);
+    } catch (error) {
+      console.error("Error setting personality:", error);
+      setChatError(error instanceof Error ? error.message : 'Une erreur est survenue lors du changement de personnalité.');
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  
 
   return (
     <div className="flex-1 flex flex-col">
@@ -176,10 +218,54 @@ export const Chat: React.FC = () => {
             <MessageSquare className="h-6 w-6" />
             <h2 className="text-3xl font-bold tracking-tight">Chat IA</h2>
           </div>
-          <Badge variant="secondary" className="flex items-center gap-1">
-            <Bot className="h-3 w-3" />
-            NeuralStark IA
-          </Badge>
+          <div className="flex items-center space-x-2">
+            <Select onValueChange={handlePersonalityChange} value={currentPersonalityKey} disabled={isLoading}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Sélectionner une personnalité" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(availablePersonalities).map(([key, personality]) => (
+                  <SelectItem key={key} value={key}>{personality.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select onValueChange={setSelectedCanvasTemplate} value={selectedCanvasTemplate || ''} disabled={isLoading}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Sélectionner un modèle" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">-- Aucun --</SelectItem>
+                <optgroup label="Défaut">
+                  {Object.entries(defaultCanvasTemplates).map(([key, template]) => (
+                    <SelectItem key={key} value={key}>{template.name || key}</SelectItem>
+                  ))}
+                </optgroup>
+                <optgroup label="Utilisateur">
+                  {Object.entries(userCanvasTemplates).map(([key, template]) => (
+                    <SelectItem key={key} value={key}>{template.name || key}</SelectItem>
+                  ))}
+                </optgroup>
+              </SelectContent>
+            </Select>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="icon" disabled={isLoading || !messages.length || typeof messages[messages.length - 1].content !== 'object' || !('canvas' in messages[messages.length - 1].content)}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Enregistrer le canevas comme modèle</DialogTitle>
+                  <DialogDescription>Donnez un nom à votre modèle.</DialogDescription>
+                </DialogHeader>
+                <Input value={newTemplateName} onChange={(e) => setNewTemplateName(e.target.value)} placeholder="Nom du modèle" />
+                <DialogFooter>
+                  <Button onClick={handleSaveTemplate} disabled={isSavingTemplate}>{isSavingTemplate ? 'Enregistrement...' : 'Enregistrer'}</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+            <Badge variant="secondary"><Bot className="h-3 w-3 mr-1" />NeuralStark IA</Badge>
+          </div>
         </div>
 
         {chatError && (
@@ -197,133 +283,51 @@ export const Chat: React.FC = () => {
                 <div className="flex flex-col items-center justify-center flex-1 text-center">
                   <Bot className="h-12 w-12 text-muted-foreground mb-4" />
                   <h3 className="text-lg font-semibold mb-2">Démarrer une Conversation</h3>
-                  <p className="text-muted-foreground max-w-sm">
-                    Demandez à NeuralStark IA tout sur vos documents ou demandez des visualisations de données.
-                    L'IA peut générer des graphiques, des diagrammes et des tableaux de bord interactifs.
-                  </p>
+                  <p className="text-muted-foreground max-w-sm">Demandez à NeuralStark IA tout sur vos documents ou demandez des visualisations de données.</p>
                 </div>
               ) : (
                 messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex gap-3 ${
-                      message.sender === 'user' ? 'justify-end' : 'justify-start'
-                    }`}
-                  >
-                    {!message.sender === 'user' && (
-                      <div className="flex-shrink-0">
-                        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                          <Bot className="h-4 w-4 text-primary-foreground" />
-                        </div>
-                      </div>
-                    )}
-                    <div
-                      className={`max-w-[80%] p-3 rounded-xl shadow-md ${
-                        message.sender === 'user'
-                          ? 'bg-primary text-primary-foreground ml-auto rounded-br-none'
-                          : 'bg-muted rounded-bl-none'
-                      }`}
-                    >
+                  <div key={message.id} className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}> 
+                    {message.sender === 'ai' && <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0"><Bot className="h-4 w-4 text-primary-foreground" /></div>}
+                    <div className={`max-w-[80%] p-3 rounded-xl shadow-md ${message.sender === 'user' ? 'bg-primary text-primary-foreground ml-auto rounded-br-none' : 'bg-muted rounded-bl-none'}`}>
                       <div className="flex items-center gap-2 mb-1">
-                        <div className="flex items-center gap-1">
-                          {message.sender === 'user' ? (
-                            <User className="h-3 w-3" />
-                          ) : (
-                            <Bot className="h-3 w-3" />
-                          )}
-                          <span className="text-xs font-medium">
-                            {message.sender === 'user' ? 'Vous' : 'NeuralStark'}
-                          </span>
-                        </div>
-                        <span className="text-xs text-muted-foreground">
-                          {message.timestamp.toLocaleTimeString()}
-                        </span>
+                        <span className="text-xs font-medium">{message.sender === 'user' ? 'Vous' : 'NeuralStark'}</span>
+                        <span className="text-xs text-muted-foreground">{message.timestamp.toLocaleTimeString()}</span>
                       </div>
                       <div className="whitespace-pre-wrap text-sm">
                         {typeof message.content === 'object' && 'canvas' in message.content ? (
-                          // Render canvas component
                           (() => {
                             const canvasData = message.content.canvas;
                             switch (canvasData.type) {
-                              case 'bar_chart':
-                                return <BarChartCanvas canvasData={canvasData} />;
-                              case 'pie_chart':
-                                return <PieChartCanvas canvasData={canvasData} />;
-                              case 'table':
-                                return <TableCanvas canvasData={canvasData} />;
-                              case 'kpi_dashboard':
-                                return <KpiDashboardCanvas canvasData={canvasData} />;
-                              case 'combo_chart':
-                                return <ComboChartCanvas canvasData={canvasData} />;
-                              // Add cases for all other canvas types you support
-                              default:
-                                return <div>Unsupported visualization type: {canvasData.type}</div>;
+                              case 'bar_chart': return <BarChartCanvas canvasData={canvasData} />;
+                              case 'pie_chart': return <PieChartCanvas canvasData={canvasData} />;
+                              case 'table': return <TableCanvas canvasData={canvasData} />;
+                              case 'kpi_dashboard': return <KpiDashboardCanvas canvasData={canvasData} />;
+                              case 'combo_chart': return <ComboChartCanvas canvasData={canvasData} />;
+                              default: return <div>Unsupported visualization type: {canvasData.type}</div>;
                             }
                           })()
                         ) : (
-                          // Render text/markdown content
-                          <div className="prose prose-sm max-w-none"> {/* Apply className to a wrapper div */}
-                            <ReactMarkdown>
-                              {message.content as string}
-                            </ReactMarkdown>
-                          </div>
+                          <div className="prose prose-sm max-w-none"><ReactMarkdown>{message.content as string}</ReactMarkdown></div>
                         )}
                       </div>
                     </div>
-                    {message.sender === 'user' && (
-                      <div className="flex-shrink-0">
-                        <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center">
-                          <User className="h-4 w-4 text-secondary-foreground" />
-                        </div>
-                      </div>
-                    )}
+                    {message.sender === 'user' && <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center flex-shrink-0"><User className="h-4 w-4 text-secondary-foreground" /></div>}
                   </div>
                 ))
               )}
-              {isLoading && (
-                <div className="flex gap-3 justify-start">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-                      <Bot className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </div>
-                  <div className="bg-muted max-w-[70%] p-3 rounded-xl rounded-bl-none shadow-md">
-                    <div className="flex items-center gap-2">
-                      <Bot className="h-3 w-3" />
-                      <span className="text-xs font-medium">NeuralStark réfléchit...</span>
-                    </div>
-                    <div className="flex items-center gap-1 mt-1">
-                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
-                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {isLoading && <div className="flex gap-3 justify-start"><div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0"><Bot className="h-4 w-4 text-muted-foreground" /></div><div className="bg-muted max-w-[70%] p-3 rounded-xl rounded-bl-none shadow-md"><div className="flex items-center gap-2"><span className="text-xs font-medium">NeuralStark réfléchit...</span></div></div></div>}
               <div ref={messagesEndRef} />
             </div>
           </ScrollArea>
           <div className="border-t p-4">
-            <div className="flex gap-2">
-              <Input
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Tapez votre message ici..."
-                className="flex-1"
-                disabled={isLoading}
-              />
-              <Button
-                onClick={handleSendMessage}
-                disabled={isLoading || !inputValue.trim()}
-                size="icon"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
+            <AdvancedFilterUI onFilterChange={handleFilterChange} />
+            <div className="flex gap-2 mt-4">
+              <Input value={inputValue} onChange={(e) => setInputValue(e.target.value)} onKeyPress={handleKeyPress} placeholder="Tapez votre message ici..." className="flex-1" disabled={isLoading} />
+              <Button onClick={handleSendMessage} disabled={isLoading || !inputValue.trim()} size="icon"><Send className="h-4 w-4" /></Button>
+              <Button onClick={isRecording ? stopRecording : startRecording} disabled={isLoading} size="icon" variant={isRecording ? "destructive" : "outline"}><Mic className={`h-4 w-4 ${isRecording ? 'animate-pulse' : ''}`} /></Button>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Appuyez sur Entrée pour envoyer • NeuralStark IA peut générer des graphiques, des tableaux de bord et analyser vos données
-            </p>
+            <p className="text-xs text-muted-foreground mt-2">Appuyez sur Entrée pour envoyer.</p>
           </div>
         </div>
       </div>

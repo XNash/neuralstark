@@ -1,5 +1,6 @@
 import time
 import logging
+import os
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from neuralstark.config import settings
@@ -33,6 +34,10 @@ def start_watcher_in_background():
     
     internal_path = settings.INTERNAL_KNOWLEDGE_BASE_PATH
     external_path = settings.EXTERNAL_KNOWLEDGE_BASE_PATH
+
+    # Ensure directories exist before watching
+    os.makedirs(internal_path, exist_ok=True)
+    os.makedirs(external_path, exist_ok=True)
 
     event_handler = DocumentEventHandler()
     observer_instance = Observer()

@@ -5,48 +5,42 @@ import { Chat } from './components/Chat';
 import { Files } from './components/Files';
 import { ScrollArea } from './components/ui/scroll-area';
 
+import { Scheduling } from './components/Scheduling';
+
+// ... (rest of the imports)
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
+
 function App() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'chat' | 'files'>('dashboard');
-
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'chat':
-        return (
-          <Chat />
-        );
-      case 'files':
-        return (
-          <Files />
-        );
-      default:
-        return <Dashboard />;
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-background">
-      <div className="flex">
-        {/* Sidebar */}
-        <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
-          <div className="flex-1 flex flex-col min-h-0 border-r bg-card">
-            <ScrollArea className="flex-1">
-              <Sidebar
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-              />
-            </ScrollArea>
-          </div>
-        </div>
-
-        {/* Main content */}
-        <div className="flex flex-col flex-1 pl-0 md:pl-64">
-          <main className="flex-1">
-            {renderContent()}
-          </main>
-        </div>
-      </div>
+    <div className="flex h-screen bg-background text-foreground">
+      <Sidebar />
+      <main className="flex-1 flex flex-col">
+        <ScrollArea className="flex-1">
+          <Tabs defaultValue="dashboard" className="flex-1">
+            <div className="border-b">
+              <TabsList className="bg-transparent px-4">
+                <TabsTrigger value="dashboard">Tableau de Bord</TabsTrigger>
+                <TabsTrigger value="chat">Chat</TabsTrigger>
+                <TabsTrigger value="documents">Documents</TabsTrigger>
+                <TabsTrigger value="scheduling">Planification</TabsTrigger>
+              </TabsList>
+            </div>
+            <TabsContent value="dashboard">
+              <Dashboard />
+            </TabsContent>
+            <TabsContent value="chat">
+              <Chat />
+            </TabsContent>
+            <TabsContent value="documents">
+              <Files />
+            </TabsContent>
+            <TabsContent value="scheduling">
+              <Scheduling />
+            </TabsContent>
+          </Tabs>
+        </ScrollArea>
+      </main>
     </div>
   );
 }

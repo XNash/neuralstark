@@ -1,8 +1,9 @@
 import os
-from typing import Optional
+from typing import Optional, Tuple, Dict, Any
 import logging
 import pandas as pd
-import json # Added for JSON parsing
+import json
+import datetime
 
 # Document parsing libraries
 try:
@@ -68,7 +69,6 @@ def parse_csv_file(file_path: str) -> Optional[str]:
     """Parses a CSV file and returns its content as a string (e.g., Markdown table)."""
     try:
         df = pd.read_csv(file_path)
-        # Convert DataFrame to a string representation, e.g., Markdown table
         return df.to_markdown(index=False)
     except Exception as e:
         logging.error(f"Error parsing CSV file {file_path}: {e}")
@@ -90,14 +90,14 @@ def parse_excel_file(file_path: str) -> Optional[str]:
 
 def parse_markdown_file(file_path: str) -> Optional[str]:
     """Parses a Markdown file as plain text."""
-    return parse_text_file(file_path) # Markdown can be treated as plain text for RAG
+    return parse_text_file(file_path)
 
 def parse_json_file(file_path: str) -> Optional[str]:
     """Parses a JSON file and returns its content as a formatted string."""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            return json.dumps(data, indent=2) # Pretty print JSON
+            return json.dumps(data, indent=2)
     except Exception as e:
         logging.error(f"Error parsing JSON file {file_path}: {e}")
         return None
@@ -114,27 +114,37 @@ def parse_odt_file(file_path: str) -> Optional[str]:
         logging.error(f"Error parsing ODT file {file_path}: {e}")
         return None
 
-def parse_document(file_path: str) -> Optional[str]:
-    """Parses a document based on its file extension."""
+def parse_document(file_path: str) -> Optional[Tuple[str, Dict[str, Any]]]:
+    """Parses a document based on its file extension and extracts content and metadata."""
     _, ext = os.path.splitext(file_path)
     ext = ext.lower()
 
+    content = None
     if ext == '.txt':
-        return parse_text_file(file_path)
+        content = parse_text_file(file_path)
     elif ext == '.pdf':
-        return parse_pdf_file(file_path)
+        content = parse_pdf_file(file_path)
     elif ext == '.docx':
-        return parse_docx_file(file_path)
+        content = parse_docx_file(file_path)
     elif ext == '.csv':
-        return parse_csv_file(file_path)
+        content = parse_csv_file(file_path)
     elif ext in ['.xls', '.xlsx']:
-        return parse_excel_file(file_path)
+        content = parse_excel_file(file_path)
     elif ext == '.md':
-        return parse_markdown_file(file_path)
+        content = parse_markdown_file(file_path)
     elif ext == '.json':
-        return parse_json_file(file_path)
+        content = parse_json_file(file_path)
     elif ext == '.odt':
-        return parse_odt_file(file_path)
+        content = parse_odt_file(file_path)
     else:
         logging.warning(f"Unsupported file type: {ext} for {file_path}")
         return None
+
+    if content is None:
+        return None
+
+    metadata = {
+        "document_type": ext.lstrip('.'),
+        "document_date": datetime.datetime.fromtimestamp(os.path.getmtime(file_path)).isoformat(),
+    }
+    return content, metadata

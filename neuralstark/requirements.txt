@@ -6,9 +6,9 @@ langchain
 langchain-google-genai
 pypdf
 python-docx
+odfdo
 python-dotenv
 celery==5.4.0
-eventlet==0.36.1
 chromadb
 langchain-community
 numpy<2.0.0
@@ -22,3 +22,5 @@ xlrd
 tabulate
 odfdo
 fastapi-cache
+SpeechRecognition
+pytest

@@ -1,39 +1,44 @@
-// frontend/src/components/canvas/TableCanvas.tsx
 import React from 'react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 
 interface TableCanvasProps {
   canvasData: any; // This will be the 'canvas' object from the backend response
 }
 
 const TableCanvas: React.FC<TableCanvasProps> = ({ canvasData }) => {
-  const { title, columns, data, config } = canvasData;
+  const { title, columns, data } = canvasData;
 
   return (
-    <div style={{ width: config?.width || '100%', height: config?.height || 'auto', overflowX: 'auto' }}>
-      {title && <h3>{title}</h3>}
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-          <tr>
-            {columns.map((col: any) => (
-              <th key={col.field} style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'left' }}>
-                {col.title}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row: any, rowIndex: number) => (
-            <tr key={rowIndex}>
-              {columns.map((col: any) => (
-                <td key={col.field} style={{ border: '1px solid #ddd', padding: '8px' }}>
-                  {row[col.field]}
-                </td>
+    <Card className="w-full">
+      {title && (
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+        </CardHeader>
+      )}
+      <CardContent className="p-0">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {columns.map((col: any) => (
+                  <TableHead key={col.field}>{col.title}</TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.map((row: any, rowIndex: number) => (
+                <TableRow key={rowIndex}>
+                  {columns.map((col: any) => (
+                    <TableCell key={col.field}>{row[col.field]}</TableCell>
+                  ))}
+                </TableRow>
               ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

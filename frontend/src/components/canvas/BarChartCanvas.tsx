@@ -1,86 +1,81 @@
-// frontend/src/components/canvas/BarChartCanvas.tsx
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-
-// Register Chart.js components (do this once in your app, e.g., in main.tsx or a central chart config file)
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 
 interface BarChartCanvasProps {
   canvasData: any; // This will be the 'canvas' object from the backend response
 }
 
 const BarChartCanvas: React.FC<BarChartCanvasProps> = ({ canvasData }) => {
-  const { title, data, axes, config } = canvasData;
-
-  // --- Data Transformation for Chart.js ---
-  const chartLabels = data.map((item: any) => item.category);
-  const chartValues = data.map((item: any) => item.value);
-  const backgroundColors = data.map((item: any) => item.color || 'rgba(75, 192, 192, 0.6)');
+  const { title, data, config } = canvasData;
 
   const chartData = {
-    labels: chartLabels,
+    labels: data.map((item: any) => item.category),
     datasets: [
       {
-        label: axes?.y?.label || 'Valeur', // Use y-axis label from canvasData or a default
-        data: chartValues,
-        backgroundColor: backgroundColors,
-        borderColor: backgroundColors.map((color: string) => color.replace('0.6', '1')), // Make border opaque
+        label: config?.label || 'Valeur',
+        data: data.map((item: any) => item.value),
+        backgroundColor: config?.backgroundColor || 'rgba(75, 192, 192, 0.6)',
+        borderColor: config?.borderColor || 'rgba(75, 192, 192, 1)',
         borderWidth: 1,
       },
     ],
   };
 
-  // --- Chart.js Options Configuration ---
-  const chartOptions = {
-    responsive: config?.responsive ?? true,
-    maintainAspectRatio: false, // Allows custom width/height from config
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: config?.legend ?? true,
+        position: config?.legendPosition || 'top',
       },
       title: {
-        display: true,
+        display: false, // Title is handled by CardTitle
         text: title,
       },
+      tooltip: {
+        callbacks: {
+          label: function(context: any) {
+            let label = context.dataset.label || '';
+            if (label) {
+              label += ': ';
+            }
+            if (context.parsed.y !== null) {
+              label += new Intl.NumberFormat('fr-FR', { style: 'decimal' }).format(context.parsed.y);
+            }
+            return label;
+          }
+        }
+      }
     },
     scales: {
       x: {
         title: {
-          display: true,
-          text: axes?.x?.label || '',
+          display: config?.xAxisTitle !== undefined,
+          text: config?.xAxisTitle || '',
         },
       },
       y: {
         title: {
-          display: true,
-          text: axes?.y?.label || '',
+          display: config?.yAxisTitle !== undefined,
+          text: config?.yAxisTitle || '',
         },
-        beginAtZero: true, // Common for bar charts
+        beginAtZero: true,
       },
     },
-    // You can add more Chart.js options based on the 'config' object in canvasData
   };
 
   return (
-    <div style={{ width: config?.width || '100%', height: config?.height || '400px' }}>
-      <Bar data={chartData} options={chartOptions} />
-    </div>
+    <Card className="w-full h-96">
+      {title && (
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+        </CardHeader>
+      )}
+      <CardContent className="h-[calc(100%-4rem)] p-4">
+        <Bar data={chartData} options={options} />
+      </CardContent>
+    </Card>
   );
 };
 

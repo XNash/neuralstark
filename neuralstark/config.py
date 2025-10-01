@@ -30,4 +30,25 @@ class Settings:
     # Embedding optimization
     EMBEDDING_BATCH_SIZE: int = int(os.getenv("EMBEDDING_BATCH_SIZE", 32)) # Default batch size for embeddings
 
+    # Personality settings
+    PERSONALITIES: dict = {
+        "default": {
+            "name": "Défaut",
+            "description": "un assistant IA utile et amical."
+        },
+        "professional": {
+            "name": "Professionnel",
+            "description": "un assistant IA formel et axé sur les affaires, fournissant des réponses concises et factuelles."
+        },
+        "creative": {
+            "name": "Créatif",
+            "description": "un assistant IA imaginatif et inspirant, capable de générer des idées et des solutions innovantes."
+        },
+        "concise": {
+            "name": "Concise",
+            "description": "un assistant IA qui fournit des réponses brèves et directes, allant droit au but."
+        }
+    }
+    DEFAULT_PERSONALITY: str = os.getenv("DEFAULT_PERSONALITY", "default")
+
 settings = Settings()

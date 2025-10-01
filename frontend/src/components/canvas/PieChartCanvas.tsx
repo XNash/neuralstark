@@ -1,6 +1,7 @@
 // frontend/src/components/canvas/PieChartCanvas.tsx
 import React from 'react';
 import { Pie } from 'react-chartjs-2';
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import {
   Chart as ChartJS,
   ArcElement,
@@ -24,7 +25,19 @@ const PieChartCanvas: React.FC<PieChartCanvasProps> = ({ canvasData }) => {
   // --- Data Transformation for Chart.js ---
   const chartLabels = data.map((item: any) => item.label);
   const chartValues = data.map((item: any) => item.value);
-  const backgroundColors = data.map((item: any) => item.color || `#${Math.floor(Math.random()*16777215).toString(16)}`); // Use color from data or random
+  const defaultColors = [
+    '#4CAF50', // Green
+    '#2196F3', // Blue
+    '#FFC107', // Amber
+    '#F44336', // Red
+    '#9C27B0', // Purple
+    '#FF9800', // Orange
+    '#00BCD4', // Cyan
+    '#E91E63', // Pink
+    '#607D8B', // Blue Grey
+    '#795548', // Brown
+  ];
+  const backgroundColors = data.map((item: any, index: number) => item.color || defaultColors[index % defaultColors.length]);
 
   const chartData = {
     labels: chartLabels,
@@ -41,15 +54,15 @@ const PieChartCanvas: React.FC<PieChartCanvasProps> = ({ canvasData }) => {
 
   // --- Chart.js Options Configuration ---
   const chartOptions = {
-    responsive: config?.responsive ?? true,
+    responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
         display: config?.show_legends ?? true,
-        position: 'top' as const,
+        position: config?.legendPosition || 'top',
       },
       title: {
-        display: true,
+        display: false, // Title is handled by CardTitle
         text: title,
       },
       tooltip: {
@@ -60,7 +73,7 @@ const PieChartCanvas: React.FC<PieChartCanvasProps> = ({ canvasData }) => {
               label += ': ';
             }
             if (context.parsed !== null) {
-              label += new Intl.NumberFormat('en-US', { style: 'decimal' }).format(context.parsed);
+              label += new Intl.NumberFormat('fr-FR', { style: 'decimal' }).format(context.parsed);
               if (config?.show_percentages) {
                 const total = context.dataset.data.reduce((sum: number, val: number) => sum + val, 0);
                 const percentage = (context.parsed / total * 100).toFixed(2) + '%';
@@ -77,9 +90,16 @@ const PieChartCanvas: React.FC<PieChartCanvasProps> = ({ canvasData }) => {
   };
 
   return (
-    <div style={{ width: config?.width || '100%', height: config?.height || '400px' }}>
-      <Pie data={chartData} options={chartOptions} />
-    </div>
+    <Card className="w-full h-96">
+      {title && (
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+        </CardHeader>
+      )}
+      <CardContent className="h-[calc(100%-4rem)] p-4">
+        <Pie data={chartData} options={chartOptions} />
+      </CardContent>
+    </Card>
   );
 };
 
