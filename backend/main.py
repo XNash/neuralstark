@@ -350,6 +350,15 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Configure CORS - Allow all origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
+)
+
 class ChatRequest(BaseModel):
     query: str
 
