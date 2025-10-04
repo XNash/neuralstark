@@ -40,4 +40,7 @@ build/
 
 # Knowledge Base Files
 neuralstark/knowledge_base/external/
-neuralstark/knowledge_base/internal/
+neuralstark/knowledge_base/internal/-e 
+# Environment files
+*.env
+*.env.*
