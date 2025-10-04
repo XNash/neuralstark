@@ -22,3 +22,9 @@ xlrd
 tabulate
 odfdo
 fastapi-cache
+# OCR dependencies
+pytesseract
+Pillow
+pdf2image
+# For image processing
+opencv-python-headless
