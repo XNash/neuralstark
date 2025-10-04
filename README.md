@@ -329,7 +329,9 @@ tail -f /var/log/celery_worker.log
 tail -f /var/log/mongodb.log
 ```
 
-For more detailed information, see [RUNNING_THE_APP.md](RUNNING_THE_APP.md).
+**📖 For comprehensive manual setup instructions with troubleshooting, see [MANUAL_SETUP.md](MANUAL_SETUP.md)**
+
+For additional information, see [RUNNING_THE_APP.md](RUNNING_THE_APP.md).
 
 ---
 
