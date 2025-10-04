@@ -28,10 +28,10 @@ from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 
-from neuralstark.config import settings
+from backend.config import settings
 from .watcher import start_watcher_in_background, stop_watcher
-from neuralstark.celery_app import process_document_task # Import Celery task
-from neuralstark.document_parser import parse_document # Import parse_document for content retrieval
+from backend.celery_app import process_document_task # Import Celery task
+from backend.document_parser import parse_document # Import parse_document for content retrieval
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(message)s',
