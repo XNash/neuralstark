@@ -111,7 +111,7 @@ def generate_quote_pdf(quote_details: str) -> str:
         except json.JSONDecodeError:
             return f"Error: Invalid JSON input for quote: {quote_details}"
 
-        file_name = f"quote_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf"
+        file_name = f"quote_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
         file_path = os.path.join(KNOWLEDGE_BASE_DIR, file_name)
 
         doc = SimpleDocTemplate(file_path, pagesize=letter)
