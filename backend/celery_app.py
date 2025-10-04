@@ -1,6 +1,6 @@
 from celery import Celery
-from neuralstark.config import settings
-from neuralstark.document_parser import parse_document
+from backend.config import settings
+from backend.document_parser import parse_document
 import os
 import time # Import time module
 import logging # Import logging module
