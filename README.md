@@ -533,6 +533,7 @@ For detailed troubleshooting, see [RUNNING_THE_APP.md](RUNNING_THE_APP.md).
 
 ## 📖 Documentation
 
+- **[MANUAL_SETUP.md](MANUAL_SETUP.md)**: ⭐ Complete step-by-step manual setup guide with troubleshooting
 - **[RUNNING_THE_APP.md](RUNNING_THE_APP.md)**: Comprehensive guide for running the application
 - **[STARTUP_SCRIPTS_README.md](STARTUP_SCRIPTS_README.md)**: Quick reference for startup scripts
 - **[CHANGES.md](CHANGES.md)**: Detailed list of all changes made
