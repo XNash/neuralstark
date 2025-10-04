@@ -10,8 +10,8 @@ class Settings:
     REDIS_DB: int = int(os.getenv("REDIS_DB", 0))
 
     # Watchdog settings
-    INTERNAL_KNOWLEDGE_BASE_PATH: str = os.getenv("INTERNAL_KNOWLEDGE_BASE_PATH", "backend/knowledge_base/internal")
-    EXTERNAL_KNOWLEDGE_BASE_PATH: str = os.getenv("EXTERNAL_KNOWLEDGE_BASE_PATH", "backend/knowledge_base/external")
+    INTERNAL_KNOWLEDGE_BASE_PATH: str = os.getenv("INTERNAL_KNOWLEDGE_BASE_PATH", "/app/backend/knowledge_base/internal")
+    EXTERNAL_KNOWLEDGE_BASE_PATH: str = os.getenv("EXTERNAL_KNOWLEDGE_BASE_PATH", "/app/backend/knowledge_base/external")
 
     # AI settings (for LLM chat model)
     LLM_MODEL: str = os.getenv("LLM_MODEL", "gemini-2.5-flash") # Default to a common chat model
