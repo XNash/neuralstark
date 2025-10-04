@@ -6,6 +6,7 @@ import json
 import subprocess
 import tempfile
 import shutil
+import io
 from pathlib import Path
 
 # Document parsing libraries
