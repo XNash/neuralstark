@@ -2,7 +2,7 @@ import os
 
 class Settings:
     PROJECT_NAME: str = "NeuralStark API"
-    PROJECT_VERSION: str = "0.1.0"
+    PROJECT_VERSION: str = "0.3.0"
 
     # Redis settings
     REDIS_HOST: str = os.getenv("REDIS_HOST", "localhost")
@@ -18,7 +18,8 @@ class Settings:
     LLM_API_KEY: str = os.getenv("LLM_API_KEY", "AIzaSyD273RLpkzyDyU59NKxTERC3jm0xVhH7N4") # Generic API key for LLM
 
     # Embedding settings
-    EMBEDDING_MODEL_NAME: str = os.getenv("EMBEDDING_MODEL_NAME", "BAAI/bge-m3")
+    # EMBEDDING_MODEL_NAME: str = os.getenv("EMBEDDING_MODEL_NAME", "BAAI/bge-m3")
+    EMBEDDING_MODEL_NAME: str = os.getenv("EMBEDDING_MODEL_NAME", "all-MiniLM-L6-v2")
     EMBEDDING_API_KEY: str = os.getenv("EMBEDDING_API_KEY", "") # Not needed for local BGE-M3, but good for API-based embeddings
 
     # ChromaDB settings
