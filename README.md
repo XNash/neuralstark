@@ -6,15 +6,25 @@ NeuralStark is a multi-platform AI assistant powered by **Xynorash**, an AI agen
 
 ### One-Command Setup
 
-**Linux / macOS / WSL:**
+**🚀 New Robust Scripts (Tested & Verified):**
 ```bash
-./run.sh
+./start_services.sh  # Comprehensive startup with error handling
+./stop_services.sh   # Clean shutdown
+```
+
+**Original Scripts:**
+```bash
+./run.sh   # Linux/macOS (basic startup)
+./stop.sh  # Linux/macOS (basic stop)
 ```
 
 **Windows:**
 ```cmd
-run.bat
+run.bat    # Windows startup
+stop.bat   # Windows stop
 ```
+
+**Recommendation:** Use `start_services.sh` for better error handling and verification.
 
 That's it! All services will start automatically. Access the application at:
 - **Frontend**: http://localhost:3000
