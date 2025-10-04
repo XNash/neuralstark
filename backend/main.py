@@ -70,7 +70,7 @@ def generate_financial_review_pdf(data: str) -> str:
         except json.JSONDecodeError:
             return f"Error: Invalid JSON input for financial review: {data}"
 
-        file_name = f"financial_review_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf"
+        file_name = f"financial_review_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
         file_path = os.path.join(KNOWLEDGE_BASE_DIR, file_name)
 
         doc = SimpleDocTemplate(file_path, pagesize=letter)
