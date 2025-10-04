@@ -48,3 +48,7 @@ neuralstark/knowledge_base/internal/-e
 # Environment files
 *.env
 *.env.*
+-e 
+# Environment files
+*.env
+*.env.*
