@@ -271,9 +271,9 @@ def _run_knowledge_base_search(input_json_string: str) -> str:
 
     if valid_source_documents:
         sources = ", ".join([os.path.basename(doc.metadata["source"]) for doc in valid_source_documents])
-        final_answer = f"Answer: {response["result"]}\nSources: {sources}"
+        final_answer = f"Answer: {response['result']}\nSources: {sources}"
     else:
-        final_answer = f"Answer: {response["result"]}\nSources: None"
+        final_answer = f"Answer: {response['result']}\nSources: None"
 
     end_time = time.time()
     logging.info(f"Knowledge base search for '{query}' took {end_time - start_time:.4f} seconds.")
