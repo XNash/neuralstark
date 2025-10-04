@@ -28,7 +28,11 @@ class Settings:
     # Canvas settings
     CANVAS_TEMPLATES_PATH: str = os.getenv("CANVAS_TEMPLATES_PATH", "canvas_templates.json")
 
-    # Embedding optimization
-    EMBEDDING_BATCH_SIZE: int = int(os.getenv("EMBEDDING_BATCH_SIZE", 32)) # Default batch size for embeddings
+    # Embedding optimization - Reduced for better resource usage
+    EMBEDDING_BATCH_SIZE: int = int(os.getenv("EMBEDDING_BATCH_SIZE", 8)) # Reduced batch size for lower memory usage
+    
+    # OCR settings
+    OCR_ENABLED: bool = os.getenv("OCR_ENABLED", "true").lower() == "true"
+    OCR_LANGUAGES: str = os.getenv("OCR_LANGUAGES", "eng+fra") # English and French by default
 
 settings = Settings()
