@@ -154,7 +154,182 @@ stop.bat
 
 ### Option 2: Manual Setup
 
-See [RUNNING_THE_APP.md](RUNNING_THE_APP.md) for detailed manual setup instructions.
+If you prefer to start services individually:
+
+#### Prerequisites
+Ensure the following are installed:
+- Python 3.9+
+- Node.js 18+
+- Redis
+- MongoDB
+
+#### Installation Commands
+
+**Install Redis:**
+```bash
+# Ubuntu/Debian
+sudo apt-get update && sudo apt-get install -y redis-server
+
+# macOS
+brew install redis
+
+# Windows
+# Download from: https://github.com/microsoftarchive/redis/releases
+```
+
+**Install MongoDB:**
+```bash
+# Ubuntu/Debian
+sudo apt-get install -y mongodb
+
+# macOS
+brew install mongodb-community
+
+# Windows
+# Download from: https://www.mongodb.com/try/download/community
+```
+
+**Install System Dependencies (for OCR and document processing):**
+```bash
+# Ubuntu/Debian
+sudo apt-get install -y tesseract-ocr poppler-utils libreoffice
+
+# macOS
+brew install tesseract poppler
+```
+
+#### Step-by-Step Startup
+
+**1. Create Required Directories:**
+```bash
+cd /app
+mkdir -p backend/knowledge_base/internal
+mkdir -p backend/knowledge_base/external
+mkdir -p chroma_db
+```
+
+**2. Install Python Dependencies:**
+```bash
+cd /app/backend
+pip install -r requirements.txt
+```
+
+**3. Install Frontend Dependencies:**
+```bash
+cd /app/frontend
+yarn install
+```
+
+**4. Start Redis:**
+```bash
+# Start Redis in background
+redis-server --daemonize yes
+
+# Verify Redis is running
+redis-cli ping  # Should return "PONG"
+```
+
+**5. Start MongoDB:**
+```bash
+# Start MongoDB (if not already running via supervisor)
+mongod --fork --logpath /var/log/mongodb.log --bind_ip_all
+
+# Verify MongoDB is running
+mongosh --eval "db.version()"  # Should return version number
+```
+
+**6. Start Celery Worker:**
+```bash
+cd /app
+export PYTHONPATH=/app:$PYTHONPATH
+nohup celery -A backend.celery_app worker \
+  --loglevel=info \
+  --concurrency=2 \
+  --max-tasks-per-child=50 \
+  > /var/log/celery_worker.log 2>&1 &
+
+# Verify Celery is running
+ps aux | grep celery
+```
+
+**7. Start Backend (FastAPI):**
+```bash
+cd /app/backend
+nohup uvicorn server:app \
+  --host 0.0.0.0 \
+  --port 8001 \
+  --reload \
+  > /var/log/backend.log 2>&1 &
+
+# Wait a few seconds, then verify
+sleep 5
+curl http://localhost:8001/health  # Should return {"status":"ok"}
+```
+
+**8. Start Frontend (React + Vite):**
+```bash
+cd /app/frontend
+nohup yarn start > /var/log/frontend.log 2>&1 &
+
+# Wait for frontend to start
+sleep 8
+curl -I http://localhost:3000  # Should return HTTP/1.1 200 OK
+```
+
+**9. Verify All Services:**
+```bash
+# Check Redis
+redis-cli ping
+
+# Check MongoDB
+mongosh --eval "db.runCommand({ ping: 1 })"
+
+# Check Celery
+ps aux | grep celery | grep -v grep
+
+# Check Backend
+curl http://localhost:8001/health
+
+# Check Frontend
+curl -I http://localhost:3000
+```
+
+#### Stopping Services
+
+```bash
+# Stop Celery Worker
+pkill -f "celery.*worker"
+
+# Stop Backend
+pkill -f "uvicorn.*server:app"
+
+# Stop Frontend
+pkill -f "vite"
+
+# Optional: Stop Redis
+redis-cli shutdown
+
+# Optional: Stop MongoDB
+mongod --shutdown
+```
+
+#### View Logs
+
+```bash
+# Backend logs
+tail -f /var/log/backend.log
+
+# Frontend logs
+tail -f /var/log/frontend.log
+
+# Celery logs
+tail -f /var/log/celery_worker.log
+
+# MongoDB logs
+tail -f /var/log/mongodb.log
+```
+
+For more detailed information, see [RUNNING_THE_APP.md](RUNNING_THE_APP.md).
 
 ---
 
