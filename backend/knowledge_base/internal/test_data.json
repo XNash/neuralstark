@@ -1,0 +1,14 @@
+{
+  "company": "NeuralStark",
+  "products": [
+    {
+      "name": "Xynorash AI Assistant",
+      "version": "1.0",
+      "features": ["RAG", "OCR", "Multi-language"]
+    }
+  ],
+  "statistics": {
+    "users": 1000,
+    "documents_processed": 50000
+  }
+}
