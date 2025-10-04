@@ -2,8 +2,8 @@ import time
 import logging
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from neuralstark.config import settings
-from neuralstark.celery_app import process_document_task # Import the Celery task
+from backend.config import settings
+from backend.celery_app import process_document_task # Import the Celery task
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(message)s',
