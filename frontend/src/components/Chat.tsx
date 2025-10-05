@@ -51,22 +51,6 @@ interface Message {
   timestamp: Date;
 }
 
-// Utility function to get icon component (kept for other potential uses, though not directly used for canvas rendering)
-const getIconComponent = (iconName: string): React.ComponentType<any> => {
-  switch (iconName) {
-    case 'trending_up':
-      return TrendingUp;
-    case 'users':
-      return Users;
-    case 'star':
-      return Star;
-    case 'target':
-      return Target;
-    default:
-      return TrendingUp; // Fallback to a default icon
-  }
-};
-
 export const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
