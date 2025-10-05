@@ -637,4 +637,43 @@ async def reset_knowledge_base(reset_type: str):
         # The default collection name used by LangChain's Chroma is "langchain"
         try:
             collection = client.get_collection("langchain")
-            # Get all i
+            # Get all items in the collection to delete them by ID
+            results = collection.get()
+            if results["ids"]:
+                collection.delete(ids=results["ids"])
+            print("Successfully cleared ChromaDB collection.")
+        except (ValueError, Exception) as e:
+            print(f"ChromaDB collection issue: {e}. Will create fresh collection during reindexing.")
+            try:
+                client.delete_collection("langchain")
+            except Exception:
+                pass
+
+        if reset_type == "hard":
+            # Delete all files in internal and external knowledge base directories
+            for dir_path in [settings.INTERNAL_KNOWLEDGE_BASE_PATH, settings.EXTERNAL_KNOWLEDGE_BASE_PATH]:
+                if os.path.exists(dir_path):
+                    for filename in os.listdir(dir_path):
+                        file_path = os.path.join(dir_path, filename)
+                        if os.path.isfile(file_path):
+                            os.remove(file_path)
+            return {"message": "Knowledge base has been hard reset. All files and embeddings have been deleted."}
+
+        elif reset_type == "soft":
+            # Re-index all existing files
+            files_to_reindex = []
+            for dir_path in [settings.INTERNAL_KNOWLEDGE_BASE_PATH, settings.EXTERNAL_KNOWLEDGE_BASE_PATH]:
+                if os.path.exists(dir_path):
+                    for filename in os.listdir(dir_path):
+                        file_path = os.path.join(dir_path, filename)
+                        if os.path.isfile(file_path):
+                            files_to_reindex.append(file_path)
+            
+            for file_path in files_to_reindex:
+                dispatch_document_processing(file_path, "created")
+            
+            return {"message": f"Knowledge base has been soft reset. Re-indexing {len(files_to_reindex)} files."}
+
+    except Exception as e:
+        logging.error(f"Error resetting knowledge base: {e}")
+        raise HTTPException(status_code=500, detail=f"Error resetting knowledge base: {e}")
