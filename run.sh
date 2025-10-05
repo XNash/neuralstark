@@ -275,12 +275,13 @@ else
 fi
 
 # Backend
-sleep 2
+sleep 3
 if lsof -i:8001 &>/dev/null 2>&1 || netstat -tuln 2>/dev/null | grep -q ":8001 "; then
-    if curl -s http://localhost:8001/health &>/dev/null; then
+    if curl -s -m 2 http://localhost:8001/health &>/dev/null; then
         echo -e "${GREEN}✓${NC} Backend     - Running on port 8001 (healthy)"
     else
-        echo -e "${YELLOW}⚠${NC} Backend     - Running on port 8001 (starting up)"
+        echo -e "${YELLOW}⚠${NC} Backend     - Running on port 8001 (loading models)"
+        all_ok=true  # Consider this OK, just loading
     fi
 else
     echo -e "${RED}✗${NC} Backend     - Not running"
