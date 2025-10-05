@@ -295,7 +295,7 @@ tools = [
     Tool(
         name="KnowledgeBaseSearch",
         func=_run_knowledge_base_search,
-        description="C'est l'outil principal pour trouver des informations. Utilisez toujours cet outil en premier si la question nécessite de récupérer tout type d'information, qu'il s'agisse de connaissances générales ou de détails provenant de documents indexés. Il peut éventuellement filtrer par 'source_type' (par exemple, 'internal' ou 'external'). L'entrée doit être une chaîne JSON avec 'query' et 'source_type' optionnel (par exemple, {\"query\": \"Comment cuisiner le riz ?\", \"source_type\": \"external\"})."
+        description="Use this tool to answer questions from the knowledge base. You can also answer general questions if no relevant documents are found. Do NOT write code. Respond only with Action and Action Input."
     ),
     Tool(
         name="CanvasGenerator",
