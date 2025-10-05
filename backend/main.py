@@ -591,3 +591,102 @@ async def upload_document(source_type: str = Form(...), file: UploadFile = File(
     except Exception as e:
         print(f"Error uploading document: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/documents/content")
+async def get_document_content(file_path: str):
+    """Retrieves the extracted text content of a specific document from the knowledge base."""
+    # Basic security check: Ensure the file path is within the knowledge base directories
+    abs_file_path = os.path.abspath(file_path)
+    internal_kb_path = os.path.abspath(settings.INTERNAL_KNOWLEDGE_BASE_PATH)
+    external_kb_path = os.path.abspath(settings.EXTERNAL_KNOWLEDGE_BASE_PATH)
+
+    if not (abs_file_path.startswith(internal_kb_path) or abs_file_path.startswith(external_kb_path)):
+        raise HTTPException(status_code=400, detail="File path is outside knowledge base directories.")
+
+    if not os.path.exists(abs_file_path):
+        raise HTTPException(status_code=404, detail="File not found.")
+
+    try:
+        content = parse_document(abs_file_path)
+        if content is None:
+            raise HTTPException(status_code=500, detail="Could not extract content from the file.")
+        return {"file_path": file_path, "content": content}
+    except Exception as e:
+        logging.error(f"Error retrieving content for {file_path}: {e}")
+        raise HTTPException(status_code=500, detail=f"Error retrieving content: {e}")
+
+@app.post("/api/documents/delete")
+async def delete_document(request: DeleteRequest):
+    """Deletes a document from the knowledge base. This will also trigger its removal from the vector store."""
+    # Basic security check: Ensure the file path is within the knowledge base directories
+    abs_file_path = os.path.abspath(request.file_path)
+    internal_kb_path = os.path.abspath(settings.INTERNAL_KNOWLEDGE_BASE_PATH)
+    external_kb_path = os.path.abspath(settings.EXTERNAL_KNOWLEDGE_BASE_PATH)
+
+    if not (abs_file_path.startswith(internal_kb_path) or abs_file_path.startswith(external_kb_path)):
+        raise HTTPException(status_code=400, detail="File path is outside knowledge base directories.")
+
+    if not os.path.exists(abs_file_path):
+        raise HTTPException(status_code=404, detail="File not found.")
+
+    try:
+        os.remove(abs_file_path)
+        # Watchdog will pick up the deletion and trigger the Celery task
+        return {"message": "File deletion initiated. It will be removed from the knowledge base."}
+    except Exception as e:
+        logging.error(f"Error deleting file {request.file_path}: {e}")
+        raise HTTPException(status_code=500, detail=f"Error deleting file: {e}")
+
+@app.post("/api/knowledge_base/reset")
+async def reset_knowledge_base(reset_type: str):
+    """Resets the knowledge base. 
+    - 'hard': Deletes all files and clears the vector store.
+    - 'soft': Re-indexes all existing files.
+    """
+    if reset_type not in ["hard", "soft"]:
+        raise HTTPException(status_code=400, detail="Invalid reset_type. Must be 'hard' or 'soft'.")
+
+    try:
+        # Clear the ChromaDB vector store using the client API
+        client = chromadb.PersistentClient(path=settings.CHROMA_DB_PATH)
+        # The default collection name used by LangChain's Chroma is "langchain"
+        try:
+            collection = client.get_collection("langchain")
+            # Get all items in the collection to delete them by ID
+            # This is safer than deleting and recreating the collection
+            results = collection.get()
+            if results["ids"]:
+                collection.delete(ids=results["ids"])
+            logging.info("Successfully cleared ChromaDB collection.")
+        except ValueError:
+            # This error is raised if the collection does not exist, which is fine.
+            logging.info("ChromaDB collection not found, creating a new one.")
+
+        if reset_type == "hard":
+            # Delete all files in internal and external knowledge base directories
+            for dir_path in [settings.INTERNAL_KNOWLEDGE_BASE_PATH, settings.EXTERNAL_KNOWLEDGE_BASE_PATH]:
+                if os.path.exists(dir_path):
+                    for filename in os.listdir(dir_path):
+                        file_path = os.path.join(dir_path, filename)
+                        if os.path.isfile(file_path):
+                            os.remove(file_path)
+            return {"message": "Knowledge base has been hard reset. All files and embeddings have been deleted."}
+
+        elif reset_type == "soft":
+            # Re-index all existing files
+            files_to_reindex = []
+            for dir_path in [settings.INTERNAL_KNOWLEDGE_BASE_PATH, settings.EXTERNAL_KNOWLEDGE_BASE_PATH]:
+                if os.path.exists(dir_path):
+                    for filename in os.listdir(dir_path):
+                        file_path = os.path.join(dir_path, filename)
+                        if os.path.isfile(file_path):
+                            files_to_reindex.append(file_path)
+            
+            for file_path in files_to_reindex:
+                dispatch_document_processing(file_path, "created")
+            
+            return {"message": f"Knowledge base has been soft reset. Re-indexing {len(files_to_reindex)} files."}
+
+    except Exception as e:
+        logging.error(f"Error resetting knowledge base: {e}")
+        raise HTTPException(status_code=500, detail=f"Error resetting knowledge base: {e}")
