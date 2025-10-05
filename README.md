@@ -125,6 +125,9 @@ The Xynorash AI agent uses the following specialized tools:
 - **TypeScript**: Type-safe JavaScript
 - **Vite**: Fast build tool with hot reload
 - **Tailwind CSS**: Utility-first CSS framework
+- **Lucide React**: Beautiful icon library
+- **Theme System**: CSS variables for light/dark mode theming
+- **Context API**: State management for theme and app state
 
 ### Backend
 - **Python 3.9+**: Core language
