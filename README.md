@@ -635,13 +635,25 @@ cd /path/to/neuralstark
 
 ### Common Issues
 
-1. **Backend loading**: Wait 20-30 seconds for ML models to load
-2. **Port conflicts**: Use `./stop.sh` then `./run.sh`
-3. **Redis missing**: Install Redis (see Prerequisites)
-4. **Logs location**: Check `logs/` directory in project root
-5. **Dependencies**: Run `pip install -r backend/requirements.txt`
+1. **ChromaDB Errors** ("Could not connect to tenant" or "unable to open database file"):
+   - **Solution**: Run `./setup.sh` to create required directories
+   - Ensure `chroma_db/` directory exists and is writable
+   
+2. **Backend loading**: Wait 20-30 seconds for ML models to load
 
-For comprehensive troubleshooting, see [QUICK_START.md](QUICK_START.md) and [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
+3. **Port conflicts**: Use `./stop.sh` then `./run.sh`
+
+4. **Redis missing**: Install Redis (see Prerequisites)
+
+5. **Logs location**: Check `logs/` directory in project root
+
+6. **Dependencies**: Run `pip install -r backend/requirements.txt`
+
+For comprehensive troubleshooting, see:
+- **[INSTALLATION_GUIDE.md](INSTALLATION_GUIDE.md)** - Complete installation for any environment
+- **[setup.sh](setup.sh)** - Automated setup validation script
+- [QUICK_START.md](QUICK_START.md) - Quick start guide
+- [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) - Deployment documentation
 
 ---
 
