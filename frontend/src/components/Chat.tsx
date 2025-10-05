@@ -1,12 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { ScrollArea } from './ui/scroll-area';
 import { Badge } from './ui/badge';
-import { Progress } from './ui/progress';
 import { apiClient } from '../lib/api';
-import { Send, MessageSquare, Bot, User, AlertTriangle, TrendingUp, Users, Star, Target } from 'lucide-react';
+import { Send, MessageSquare, Bot, User, AlertTriangle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import ReactMarkdown from 'react-markdown';
 import BarChartCanvas from './canvas/BarChartCanvas';
@@ -14,8 +12,6 @@ import PieChartCanvas from './canvas/PieChartCanvas';
 import TableCanvas from './canvas/TableCanvas';
 import KpiDashboardCanvas from './canvas/KpiDashboardCanvas';
 import ComboChartCanvas from './canvas/ComboChartCanvas';
-import { Bar, Line, Pie, Doughnut, Scatter, Radar, PolarArea } from 'react-chartjs-2';
-import { Table, TableHeader, TableBody, TableCell, TableHead, TableRow, TableCaption } from './ui/table';
 import {
   Chart as ChartJS,
   CategoryScale,
