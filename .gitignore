@@ -52,3 +52,7 @@ backend/knowledge_base/internal/
 # Environment files
 *.env
 *.env.*
+-e 
+# Environment files
+*.env
+*.env.*
