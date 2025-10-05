@@ -23,11 +23,7 @@ import {
   ArcElement,
   PointElement,
   LineElement,
-  RadialLinearScale,
-  TimeScale,
-  Filler,
 } from 'chart.js';
-import 'chartjs-adapter-date-fns';
 
 ChartJS.register(
   CategoryScale,
@@ -38,10 +34,7 @@ ChartJS.register(
   Legend,
   ArcElement,
   PointElement,
-  LineElement,
-  RadialLinearScale,
-  TimeScale,
-  Filler
+  LineElement
 );
 
 interface Message {
