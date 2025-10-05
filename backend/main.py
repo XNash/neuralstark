@@ -404,7 +404,7 @@ async def chat_endpoint(request: ChatRequest):
 
     except Exception as e:
         print(f"Error in chat endpoint: {e}")
-        return {"error": str(e)}, 500
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/documents")
