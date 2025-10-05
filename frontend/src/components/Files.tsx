@@ -11,12 +11,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 
-interface FileContentModalProps {
-  showContentModal: boolean;
-  setShowContentModal: (open: boolean) => void;
-  documentContent: string | null;
-}
-
 const FileContentModal = ({
   showContentModal,
   setShowContentModal,
