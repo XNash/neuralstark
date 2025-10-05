@@ -54,6 +54,14 @@ tail -f logs/celery_worker.log
 - **Tool-Use Capabilities**: Generate PDF reports (financial reviews, quotes) and create interactive data visualizations
 - **Advanced OCR**: Extract text from images, scanned PDFs, and embedded images in documents
 
+#### AI Agent Tools
+The Xynorash AI agent uses the following specialized tools:
+
+1. **KnowledgeBaseSearch**: Answers questions from the knowledge base and can also answer general questions if no relevant documents are found. Does not write code.
+2. **FinancialReviewGenerator**: Generates financial review PDF reports with company data, revenue, and profit information.
+3. **QuoteGenerator**: Creates professional quote/quotation PDF documents with item details, pricing, and client information.
+4. **CanvasGenerator**: Generates interactive data visualizations including bar charts, pie charts, combo charts, tables, and dashboards.
+
 ### 📁 Comprehensive Document Support
 **Documents (15+ formats):**
 - PDF (with OCR for scanned documents)
