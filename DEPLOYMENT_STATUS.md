@@ -17,7 +17,7 @@ This application is running in a Kubernetes containerized environment where serv
 
 ## Application Access
 
-- **Frontend**: https://rag-accuracy-boost.preview.emergentagent.com
+- **Frontend**: https://embedding-fix.preview.emergentagent.com
 - **Backend API**: http://localhost:8001
 - **API Documentation**: http://localhost:8001/docs
 
