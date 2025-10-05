@@ -537,9 +537,14 @@ async def reset_knowledge_base(reset_type: str):
             if results["ids"]:
                 collection.delete(ids=results["ids"])
             print("Successfully cleared ChromaDB collection.")
-        except ValueError:
-            # This error is raised if the collection does not exist, which is fine.
-            print("ChromaDB collection not found, creating a new one.")
+        except (ValueError, Exception) as e:
+            # Collection doesn't exist or error occurred - try to create it
+            print(f"ChromaDB collection issue: {e}. Will create fresh collection during reindexing.")
+            try:
+                # Try to delete the collection if it exists but is corrupted
+                client.delete_collection("langchain")
+            except Exception:
+                pass  # Collection doesn't exist, that's fine
 
         if reset_type == "hard":
             # Delete all files in internal and external knowledge base directories
