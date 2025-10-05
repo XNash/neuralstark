@@ -1,5 +1,16 @@
 # NeuralStark Backend Improvements - Implementation Summary
 
+## Latest Changes (January 2025)
+
+### AI Agent Tool Description Update ✅
+- **Updated KnowledgeBaseSearch tool description**: Changed to be more clear and concise
+  - New description: "Use this tool to answer questions from the knowledge base. You can also answer general questions if no relevant documents are found. Do NOT write code. Respond only with Action and Action Input."
+  - Previous description was in French and less specific about code generation
+- **Files modified**: `/app/backend/main.py`, `/app/README.md`
+- **Documentation updated**: Added AI Agent Tools section to README
+
+---
+
 ## Changes Implemented
 
 ### 1. Directory Restructuring ✅
