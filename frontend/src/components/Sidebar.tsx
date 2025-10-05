@@ -39,11 +39,14 @@ export const Sidebar = ({
     <div className={cn("pb-12 w-64", className)}>
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
-          <div className="flex items-center mb-6">
-            <Bot className="h-8 w-8 mr-3 text-primary" />
-            <h2 className="text-lg font-semibold tracking-tight">
-              NeuralStark
-            </h2>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center">
+              <Bot className="h-8 w-8 mr-3 text-primary" />
+              <h2 className="text-lg font-semibold tracking-tight">
+                NeuralStark
+              </h2>
+            </div>
+            <ThemeToggle />
           </div>
           <div className="space-y-1">
             <h3 className="mb-2 px-4 text-sm font-semibold tracking-tight text-muted-foreground">
