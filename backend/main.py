@@ -587,7 +587,7 @@ async def reset_knowledge_base(reset_type: str):
                             files_to_reindex.append(file_path)
             
             for file_path in files_to_reindex:
-                process_document_task.delay(file_path, "created")
+                dispatch_document_processing(file_path, "created")
             
             return {"message": f"Knowledge base has been soft reset. Re-indexing {len(files_to_reindex)} files."}
 
