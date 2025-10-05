@@ -708,16 +708,34 @@ For issues, questions, or feature requests:
 ## 🎉 Get Started Now!
 
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone <repository-url>
 cd neuralstark
 
-# Start the application
-./run.sh    # Linux/macOS
-run.bat     # Windows
+# 2. Install prerequisites (if needed)
+# Ubuntu/Debian:
+sudo apt-get install redis-server mongodb
 
-# Open in browser
+# macOS:
+brew install redis mongodb-community
+
+# 3. Make scripts executable
+chmod +x run.sh stop.sh
+
+# 4. Start the application
+./run.sh
+
+# 5. Wait ~20 seconds for backend to load ML models
+
+# 6. Open in browser
 # http://localhost:3000
 ```
+
+**Features:**
+- 🚀 No sudo required for scripts
+- 📝 Logs in local `logs/` directory
+- ✅ Works on any Linux distribution
+- 🔄 Hot reload for development
+- 📊 20+ visualization templates included
 
 **Happy building with NeuralStark! 🚀**
