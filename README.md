@@ -4,7 +4,22 @@ NeuralStark is a multi-platform AI assistant powered by **Xynorash**, an AI agen
 
 ## 🚀 Quick Start
 
-### One-Command Setup
+### First Time Setup (Required)
+
+**Run setup validation once:**
+
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+This will:
+- ✅ Create all required directories (`chroma_db/`, `logs/`, etc.)
+- ✅ Validate system prerequisites
+- ✅ Check dependencies
+- ✅ Verify permissions
+
+### One-Command Startup
 
 **Universal Scripts (Works on any Linux environment - no sudo required):**
 
@@ -19,14 +34,18 @@ chmod +x run.sh stop.sh
 ./stop.sh
 ```
 
-That's it! The scripts will:
+The scripts will:
 - ✅ Auto-detect your Python virtual environment
+- ✅ Create required directories automatically
+- ✅ Install missing dependencies (Redis, MongoDB if needed)
 - ✅ Start MongoDB, Redis, Celery, Backend, and Frontend
 - ✅ Create local `logs/` directory for all logs
 - ✅ Perform health checks on all services
 - ✅ Work on Ubuntu, Debian, CentOS, macOS
 
 **Startup time:** ~20-30 seconds (backend loads ML models)
+
+> **⚠️ IMPORTANT:** If you encounter ChromaDB errors like "Could not connect to tenant" or "unable to open database file", ensure all directories exist by running `./setup.sh` first.
 
 ### Access the Application
 
