@@ -52,9 +52,8 @@ print_status info "Setting up Python virtual environment..."
 if [ -d "$SCRIPT_DIR/.venv" ]; then
     print_status success "Virtual environment found (.venv)"
 elif [ -d "/root/.venv" ]; then
-    # Create symlink if /root/.venv exists
-    ln -sf /root/.venv "$SCRIPT_DIR/.venv" 2>/dev/null
-    print_status success "Virtual environment linked (/root/.venv)"
+    # Use /root/.venv directly without creating symlink (avoids Git issues)
+    print_status success "Virtual environment found (/root/.venv)"
 else
     # Create new venv
     print_status warn "Creating new virtual environment..."
