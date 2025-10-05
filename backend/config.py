@@ -47,3 +47,27 @@ class Settings:
     OCR_LANGUAGES: str = os.getenv("OCR_LANGUAGES", "eng+fra") # English and French by default
 
 settings = Settings()
+
+# Automatically create required directories on import
+def _ensure_directories_exist():
+    """Ensure all required directories exist with proper permissions."""
+    required_dirs = [
+        settings.CHROMA_DB_PATH,
+        settings.INTERNAL_KNOWLEDGE_BASE_PATH,
+        settings.EXTERNAL_KNOWLEDGE_BASE_PATH,
+    ]
+    
+    for dir_path in required_dirs:
+        Path(dir_path).mkdir(parents=True, exist_ok=True)
+        
+    # Verify ChromaDB directory is writable
+    chroma_path = Path(settings.CHROMA_DB_PATH)
+    if not os.access(chroma_path, os.W_OK):
+        try:
+            # Try to make it writable
+            os.chmod(chroma_path, 0o755)
+        except Exception:
+            pass  # If we can't change permissions, continue anyway
+
+# Create directories when config is imported
+_ensure_directories_exist()
