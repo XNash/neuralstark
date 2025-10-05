@@ -22,7 +22,7 @@ interface DashboardStats {
   systemStatus: 'online' | 'offline' | 'maintenance';
 }
 
-export const Dashboard: React.FC = () => {
+export const Dashboard = () => {
   const [stats, setStats] = useState<DashboardStats>({
     totalChats: 0,
     totalDocuments: 0,
