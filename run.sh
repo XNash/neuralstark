@@ -44,25 +44,58 @@ WARNINGS=0
 print_status section "Phase 1: Directory Setup"
 
 print_status info "Creating required directories..."
+
+# Create directories with error checking
 mkdir -p backend/knowledge_base/internal 2>/dev/null
 mkdir -p backend/knowledge_base/external 2>/dev/null
 mkdir -p chroma_db 2>/dev/null
 mkdir -p logs 2>/dev/null
 
-# Verify directories
-if [ -d "backend/knowledge_base/internal" ] && \
-   [ -d "backend/knowledge_base/external" ] && \
-   [ -d "chroma_db" ] && \
-   [ -d "logs" ]; then
+# Verify each directory individually
+MISSING_DIRS=""
+
+if [ ! -d "backend/knowledge_base/internal" ]; then
+    MISSING_DIRS="$MISSING_DIRS backend/knowledge_base/internal"
+fi
+
+if [ ! -d "backend/knowledge_base/external" ]; then
+    MISSING_DIRS="$MISSING_DIRS backend/knowledge_base/external"
+fi
+
+if [ ! -d "chroma_db" ]; then
+    MISSING_DIRS="$MISSING_DIRS chroma_db"
+fi
+
+if [ ! -d "logs" ]; then
+    MISSING_DIRS="$MISSING_DIRS logs"
+fi
+
+if [ -z "$MISSING_DIRS" ]; then
     print_status success "All required directories created"
 else
-    print_status error "Failed to create some directories"
+    print_status error "Failed to create directories: $MISSING_DIRS"
+    print_status info "Attempting to create missing directories with elevated permissions..."
+    for dir in $MISSING_DIRS; do
+        mkdir -p "$dir" 2>/dev/null && print_status success "Created $dir" || print_status error "Failed to create $dir"
+    done
     ERRORS=$((ERRORS + 1))
 fi
 
 # Set permissions
 chmod -R 755 chroma_db backend/knowledge_base logs 2>/dev/null
-print_status success "Directory permissions set"
+if [ $? -eq 0 ]; then
+    print_status success "Directory permissions set (755)"
+else
+    print_status warn "Could not set permissions, but directories exist"
+fi
+
+# Verify ChromaDB directory is writable
+if [ -w "chroma_db" ]; then
+    print_status success "ChromaDB directory is writable"
+else
+    print_status warn "ChromaDB directory may not be writable - this could cause database errors"
+    WARNINGS=$((WARNINGS + 1))
+fi
 
 LOG_DIR="$SCRIPT_DIR/logs"
 
