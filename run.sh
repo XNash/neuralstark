@@ -189,14 +189,14 @@ nohup $UVICORN_BIN server:app \
     --reload \
     > "$LOG_DIR/backend.log" 2>&1 &
 
-sleep 4
+print_status info "Waiting for backend to load (loading ML models)..."
+sleep 10
 
 if lsof -i:8001 &>/dev/null 2>&1 || netstat -tuln 2>/dev/null | grep -q ":8001 "; then
     print_status success "Backend started on port 8001"
 else
-    print_status error "Backend failed to start"
+    print_status warn "Backend may still be loading"
     print_status info "Check logs: tail -f $LOG_DIR/backend.log"
-    exit 1
 fi
 
 ###########################################
