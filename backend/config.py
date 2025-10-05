@@ -71,3 +71,11 @@ def _ensure_directories_exist():
 
 # Create directories when config is imported
 _ensure_directories_exist()
+
+# Print configuration on import (for debugging)
+import sys
+if __name__ != "__main__" and "pytest" not in sys.modules:
+    print(f"📁 NeuralStark Configuration:")
+    print(f"   ChromaDB Path: {settings.CHROMA_DB_PATH}")
+    print(f"   Internal KB: {settings.INTERNAL_KNOWLEDGE_BASE_PATH}")
+    print(f"   External KB: {settings.EXTERNAL_KNOWLEDGE_BASE_PATH}")
