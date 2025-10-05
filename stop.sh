@@ -1,55 +1,44 @@
 #!/bin/bash
 
-# NeuralStark Application Stop Script
-# This script stops all services for the NeuralStark application
+###########################################
+# NeuralStark - Quick Stop Script
+# Version: 3.0 (Supervisor Compatible)
+# Updated: January 2025
+###########################################
 
-echo "=========================================="
-echo "  NeuralStark - Stopping All Services"
-echo "=========================================="
-
-# Colors for output
+# Colors
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Stop Celery worker
-echo -e "\n${YELLOW}Stopping Celery worker...${NC}"
-pkill -f "celery.*worker"
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✓ Celery worker stopped${NC}"
-else
-    echo -e "${YELLOW}⚠ No Celery worker found${NC}"
-fi
-
-# Stop Backend
-echo -e "\n${YELLOW}Stopping Backend...${NC}"
-pkill -f "uvicorn.*server:app"
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✓ Backend stopped${NC}"
-else
-    echo -e "${YELLOW}⚠ No Backend process found${NC}"
-fi
-
-# Stop Frontend
-echo -e "\n${YELLOW}Stopping Frontend...${NC}"
-pkill -f "vite"
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✓ Frontend stopped${NC}"
-else
-    echo -e "${YELLOW}⚠ No Frontend process found${NC}"
-fi
-
-# Optionally stop Redis (uncomment if needed)
-# echo -e "\n${YELLOW}Stopping Redis...${NC}"
-# redis-cli shutdown
-# echo -e "${GREEN}✓ Redis stopped${NC}"
-
-# Optionally stop MongoDB (uncomment if needed)
-# echo -e "\n${YELLOW}Stopping MongoDB...${NC}"
-# mongod --shutdown
-# echo -e "${GREEN}✓ MongoDB stopped${NC}"
-
-echo -e "\n=========================================="
-echo -e "${GREEN}  All Services Stopped${NC}"
 echo "=========================================="
+echo "  NeuralStark - Quick Stop"
+echo "=========================================="
+echo ""
+
+# Stop Celery worker (not managed by supervisor)
+echo "Stopping Celery worker..."
+if pgrep -f "celery.*worker" > /dev/null; then
+    pkill -9 -f "celery.*worker" 2>/dev/null
+    sleep 1
+    echo -e "${GREEN}✓${NC} Celery stopped"
+else
+    echo -e "${YELLOW}⚠${NC} Celery not running"
+fi
+
+rm -f /tmp/celery_worker.pid
+
+echo ""
+echo "=========================================="
+echo -e "${GREEN}✓${NC} Services stopped"
+echo "=========================================="
+echo ""
+echo "Note: Backend, Frontend, and MongoDB are managed by supervisor"
+echo "      and will continue running unless explicitly stopped."
+echo ""
+echo "To stop supervisor services:"
+echo "  sudo supervisorctl stop backend frontend"
+echo ""
+echo "To stop Redis:"
+echo "  redis-cli shutdown"
+echo ""

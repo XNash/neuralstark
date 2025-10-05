@@ -1,9 +1,9 @@
 #!/bin/bash
 
 ###########################################
-# NeuralStark - Robust Service Startup Script
-# Version: 2.0
-# Tested: October 4, 2025
+# NeuralStark - Service Startup Script
+# Version: 3.0 (Supervisor Compatible)
+# Updated: January 2025
 ###########################################
 
 set -e  # Exit on error
@@ -12,6 +12,7 @@ set -e  # Exit on error
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 echo "=========================================="
@@ -35,7 +36,7 @@ print_error() {
 }
 
 print_info() {
-    echo "  $1"
+    echo -e "${BLUE}ℹ${NC} $1"
 }
 
 ###########################################
@@ -50,16 +51,22 @@ print_success "Directories created"
 echo ""
 
 ###########################################
-# 2. Start Redis
+# 2. Install and Start Redis
 ###########################################
-echo "Step 2: Starting Redis..."
+echo "Step 2: Setting up Redis..."
+if ! command -v redis-server &> /dev/null; then
+    print_warning "Redis not found. Installing..."
+    apt-get update -qq && apt-get install -y redis-server -qq
+    print_success "Redis installed"
+fi
+
 if redis-cli ping 2>/dev/null | grep -q "PONG"; then
-    print_success "Redis already running"
+    print_success "Redis already running on port 6379"
 else
-    redis-server --daemonize yes
+    redis-server --daemonize yes --bind 127.0.0.1
     sleep 2
     if redis-cli ping 2>/dev/null | grep -q "PONG"; then
-        print_success "Redis started successfully"
+        print_success "Redis started successfully on port 6379"
     else
         print_error "Failed to start Redis"
         exit 1
@@ -68,16 +75,15 @@ fi
 echo ""
 
 ###########################################
-# 3. Verify MongoDB
+# 3. Verify MongoDB (Managed by Supervisor)
 ###########################################
 echo "Step 3: Verifying MongoDB..."
-if mongosh --eval "db.runCommand({ ping: 1 }).ok" --quiet 2>/dev/null | grep -q "1"; then
-    VERSION=$(mongosh --eval "db.version()" --quiet 2>/dev/null)
-    print_success "MongoDB running (v$VERSION)"
+if sudo supervisorctl status mongodb | grep -q "RUNNING"; then
+    print_success "MongoDB running (managed by supervisor)"
+elif mongosh --eval "db.runCommand({ ping: 1 }).ok" --quiet 2>/dev/null | grep -q "1"; then
+    print_success "MongoDB running on port 27017"
 else
-    print_warning "MongoDB not accessible"
-    print_info "Attempting to start MongoDB..."
-    mongod --fork --logpath /var/log/mongodb.log --bind_ip_all 2>/dev/null || print_info "MongoDB may be managed by supervisor"
+    print_warning "MongoDB status unclear - supervisor will manage it"
 fi
 echo ""
 
@@ -119,111 +125,72 @@ fi
 echo ""
 
 ###########################################
-# 5. Start Backend (FastAPI)
+# 5. Restart Supervisor Services
 ###########################################
-echo "Step 5: Starting Backend API..."
+echo "Step 5: Restarting supervisor services..."
 
-# Stop existing backend
-if pgrep -f "uvicorn.*server:app.*8001" > /dev/null; then
-    print_warning "Stopping existing backend..."
-    pkill -9 -f "uvicorn.*server:app.*8001" 2>/dev/null || true
-    sleep 2
+# Restart backend
+print_info "Restarting backend..."
+sudo supervisorctl restart backend > /dev/null 2>&1
+sleep 3
+
+if sudo supervisorctl status backend | grep -q "RUNNING"; then
+    print_success "Backend running on port 8001 (via supervisor)"
+else
+    print_error "Backend failed to start"
+    print_info "Check logs: tail -f /var/log/supervisor/backend.err.log"
 fi
 
-# Check if port 8001 is free
-if lsof -i:8001 > /dev/null 2>&1 || netstat -tlnp 2>/dev/null | grep -q ":8001 "; then
-    print_warning "Port 8001 in use, cleaning up..."
-    fuser -k 8001/tcp 2>/dev/null || true
-    sleep 2
-fi
-
-# Start backend
-cd /app/backend
-nohup uvicorn server:app \
-    --host 0.0.0.0 \
-    --port 8001 \
-    --reload \
-    > /var/log/backend.log 2>&1 &
-
-# Wait and verify
+# Restart frontend
+print_info "Restarting frontend..."
+sudo supervisorctl restart frontend > /dev/null 2>&1
 sleep 5
 
-if pgrep -f "uvicorn.*server:app" > /dev/null; then
-    print_success "Backend process started"
+if sudo supervisorctl status frontend | grep -q "RUNNING"; then
+    print_success "Frontend running on port 3000 (via supervisor)"
 else
-    print_error "Backend process failed to start"
-    print_info "Check logs: tail -f /var/log/backend.log"
-    exit 1
+    print_error "Frontend failed to start"
+    print_info "Check logs: tail -f /var/log/supervisor/frontend.err.log"
 fi
 
-# Health check
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8001/health 2>/dev/null)
+echo ""
+
+###########################################
+# 6. Health Checks
+###########################################
+echo "Step 6: Performing health checks..."
+
+# Backend health check
+print_info "Checking backend health..."
+sleep 3
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8001/health 2>/dev/null || echo "000")
 if [ "$HTTP_CODE" = "200" ]; then
     print_success "Backend API healthy (HTTP 200)"
+elif [ "$HTTP_CODE" = "000" ]; then
+    print_warning "Backend not yet responding (still starting up)"
 else
-    print_error "Backend health check failed (HTTP $HTTP_CODE)"
-    print_info "Check logs: tail -f /var/log/backend.log"
-    exit 1
-fi
-echo ""
-
-###########################################
-# 6. Start Frontend (React + Vite)
-###########################################
-echo "Step 6: Starting Frontend..."
-
-# Stop existing frontend
-if pgrep -f "vite.*3000" > /dev/null || pgrep -f "node.*vite" > /dev/null; then
-    print_warning "Stopping existing frontend..."
-    pkill -9 -f "vite.*3000" 2>/dev/null || true
-    pkill -9 -f "node.*vite" 2>/dev/null || true
-    sleep 2
+    print_warning "Backend health check returned HTTP $HTTP_CODE"
 fi
 
-# Check if port 3000 is free
-if lsof -i:3000 > /dev/null 2>&1 || netstat -tlnp 2>/dev/null | grep -q ":3000 "; then
-    print_warning "Port 3000 in use, cleaning up..."
-    fuser -k 3000/tcp 2>/dev/null || true
-    sleep 2
-fi
-
-# Check dependencies
-if [ ! -d "/app/frontend/node_modules" ]; then
-    print_warning "Installing frontend dependencies..."
-    cd /app/frontend
-    yarn install --silent
-fi
-
-# Start frontend
-cd /app/frontend
-nohup yarn start > /var/log/frontend.log 2>&1 &
-
-# Wait and verify
-print_info "Waiting for frontend to start (10 seconds)..."
-sleep 10
-
-if pgrep -f "vite.*3000" > /dev/null || pgrep -f "node.*vite" > /dev/null; then
-    print_success "Frontend process started"
-else
-    print_error "Frontend process failed to start"
-    print_info "Check logs: tail -f /var/log/frontend.log"
-    exit 1
-fi
-
-# HTTP check
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 2>/dev/null)
+# Frontend health check
+print_info "Checking frontend..."
+sleep 2
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 2>/dev/null || echo "000")
 if [ "$HTTP_CODE" = "200" ]; then
     print_success "Frontend accessible (HTTP 200)"
+elif [ "$HTTP_CODE" = "000" ]; then
+    print_warning "Frontend not yet responding (still starting up)"
 else
-    print_warning "Frontend returned HTTP $HTTP_CODE (may be normal during startup)"
+    print_warning "Frontend returned HTTP $HTTP_CODE"
 fi
+
 echo ""
 
 ###########################################
-# 7. Final Verification
+# 7. Final Service Status
 ###########################################
 echo "=========================================="
-echo "  Service Verification"
+echo "  Service Status Summary"
 echo "=========================================="
 echo ""
 
@@ -237,7 +204,9 @@ fi
 
 # MongoDB
 echo -n "MongoDB:      "
-if mongosh --eval "db.runCommand({ ping: 1 }).ok" --quiet 2>/dev/null | grep -q "1"; then
+if sudo supervisorctl status mongodb | grep -q "RUNNING"; then
+    print_success "Running on port 27017"
+elif mongosh --eval "db.runCommand({ ping: 1 }).ok" --quiet 2>/dev/null | grep -q "1"; then
     print_success "Running on port 27017"
 else
     print_error "Not responding"
@@ -254,34 +223,41 @@ fi
 
 # Backend
 echo -n "Backend:      "
-if curl -s http://localhost:8001/health 2>/dev/null | grep -q "ok"; then
+if sudo supervisorctl status backend | grep -q "RUNNING"; then
     print_success "Running on port 8001"
 else
-    print_error "Not responding"
+    print_error "Not running"
 fi
 
 # Frontend
 echo -n "Frontend:     "
-if curl -s -I http://localhost:3000 2>/dev/null | grep -q "HTTP"; then
+if sudo supervisorctl status frontend | grep -q "RUNNING"; then
     print_success "Running on port 3000"
 else
-    print_error "Not responding"
+    print_error "Not running"
 fi
 
 echo ""
 echo "=========================================="
-echo "  All Services Started Successfully!"
+echo "  All Services Started!"
 echo "=========================================="
 echo ""
-print_info "Access points:"
+print_info "Access Points:"
 print_info "  • Frontend:   http://localhost:3000"
 print_info "  • Backend:    http://localhost:8001"
 print_info "  • API Docs:   http://localhost:8001/docs"
 echo ""
-print_info "Logs:"
-print_info "  • Backend:    tail -f /var/log/backend.log"
-print_info "  • Frontend:   tail -f /var/log/frontend.log"
+print_info "Service Logs:"
+print_info "  • Backend:    tail -f /var/log/supervisor/backend.err.log"
+print_info "  • Frontend:   tail -f /var/log/supervisor/frontend.err.log"
 print_info "  • Celery:     tail -f /var/log/celery_worker.log"
+print_info "  • MongoDB:    tail -f /var/log/mongodb.err.log"
+echo ""
+print_info "Service Control:"
+print_info "  • Restart all:      sudo supervisorctl restart all"
+print_info "  • Restart backend:  sudo supervisorctl restart backend"
+print_info "  • Restart frontend: sudo supervisorctl restart frontend"
+print_info "  • Status check:     sudo supervisorctl status"
 echo ""
 print_success "System is ready to use!"
 echo "=========================================="
