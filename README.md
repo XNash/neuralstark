@@ -620,12 +620,9 @@ For comprehensive troubleshooting, see [QUICK_START.md](QUICK_START.md) and [DEP
 
 ## 📖 Documentation
 
-- **[QUICK_START_MANUAL.md](QUICK_START_MANUAL.md)**: ⚡ Quick reference for manual startup commands
-- **[MANUAL_SETUP.md](MANUAL_SETUP.md)**: ⭐ Complete step-by-step manual setup guide with troubleshooting
-- **[RUNNING_THE_APP.md](RUNNING_THE_APP.md)**: Comprehensive guide for running the application
-- **[STARTUP_SCRIPTS_README.md](STARTUP_SCRIPTS_README.md)**: Quick reference for startup scripts
-- **[CHANGES.md](CHANGES.md)**: Detailed list of all changes made
-- **[IMPLEMENTATION_COMPLETE.md](IMPLEMENTATION_COMPLETE.md)**: Complete implementation details
+- **[QUICK_START.md](QUICK_START.md)**: ⚡ Simple quick start guide with common issues
+- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)**: ⭐ Complete deployment documentation
+- **[README.md](README.md)**: 📘 This file - comprehensive overview
 
 ---
 
