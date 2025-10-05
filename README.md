@@ -360,22 +360,20 @@ mongod --shutdown
 #### View Logs
 
 ```bash
-# Backend logs
+# Using automated scripts (logs in local directory)
+tail -f logs/backend.log
+tail -f logs/frontend.log
+tail -f logs/celery_worker.log
+
+# Or system logs (if started manually)
 tail -f /var/log/backend.log
-
-# Frontend logs
 tail -f /var/log/frontend.log
-
-# Celery logs
 tail -f /var/log/celery_worker.log
-
-# MongoDB logs
-tail -f /var/log/mongodb.log
 ```
 
-**📖 For comprehensive manual setup instructions with troubleshooting, see [MANUAL_SETUP.md](MANUAL_SETUP.md)**
-
-For additional information, see [RUNNING_THE_APP.md](RUNNING_THE_APP.md).
+**📖 For detailed setup and troubleshooting:**
+- [QUICK_START.md](QUICK_START.md) - Simple quick start guide
+- [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) - Complete deployment documentation
 
 ---
 
