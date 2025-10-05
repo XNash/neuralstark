@@ -48,3 +48,7 @@ backend/knowledge_base/internal/
 *.env
 *.env.*
 !.env.example
+-e 
+# Environment files
+*.env
+*.env.*
