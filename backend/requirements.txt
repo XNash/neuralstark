@@ -16,6 +16,7 @@ click-didyoumean>=0.3.0
 click-plugins>=1.1.1
 click-repl>=0.3.0
 chromadb
+overrides>=7.7.0
 langchain-community
 numpy<2.0.0
 langchain-chroma
