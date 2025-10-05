@@ -403,8 +403,22 @@ async def chat_endpoint(request: ChatRequest):
             return {"response": output}
 
     except Exception as e:
-        print(f"Error in chat endpoint: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        error_message = str(e)
+        print(f"Error in chat endpoint: {error_message}")
+        
+        # Handle specific quota exceeded errors with more user-friendly messages
+        if "quota exceeded" in error_message.lower() or "429" in error_message:
+            raise HTTPException(
+                status_code=429, 
+                detail="Service temporarily unavailable due to high demand. Please try again in a few minutes."
+            )
+        elif "api" in error_message.lower() and "key" in error_message.lower():
+            raise HTTPException(
+                status_code=503, 
+                detail="AI service is currently unavailable. Please try again later."
+            )
+        else:
+            raise HTTPException(status_code=500, detail="An error occurred while processing your request.")
 
 
 @app.get("/api/documents")
