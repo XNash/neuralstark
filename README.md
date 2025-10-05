@@ -125,22 +125,40 @@ tail -f logs/celery_worker.log
 
 ### Required Software
 
-- **Python 3.9+**: [Download Python](https://www.python.org/downloads/)
-- **Node.js 18+**: [Download Node.js](https://nodejs.org/)
-- **Redis**: Message broker for Celery
-  - Linux: `sudo apt-get install redis-server`
-  - macOS: `brew install redis`
-  - Windows: [Download Redis](https://github.com/microsoftarchive/redis/releases)
-- **MongoDB**: Database
-  - Linux: `sudo apt-get install mongodb`
-  - macOS: `brew install mongodb-community`
-  - Windows: [Download MongoDB](https://www.mongodb.com/try/download/community)
+- **Python 3.8+**: [Download Python](https://www.python.org/downloads/)
+- **Node.js 16+**: [Download Node.js](https://nodejs.org/)
+- **Redis**: Message broker for Celery (required)
+- **MongoDB**: Database (recommended)
 
-### System Dependencies (Auto-installed by scripts)
+### Installation
+
+**Ubuntu/Debian:**
+```bash
+sudo apt-get update
+sudo apt-get install redis-server mongodb
+```
+
+**macOS:**
+```bash
+brew install redis mongodb-community
+brew services start redis
+brew services start mongodb-community
+```
+
+**CentOS/RHEL:**
+```bash
+sudo yum install redis mongodb-org
+sudo systemctl start redis
+sudo systemctl start mongod
+```
+
+### Optional System Dependencies
 
 - **Tesseract OCR**: For image text extraction
-- **LibreOffice**: For .doc file conversion
-- **poppler-utils**: For PDF processing
+- **LibreOffice**: For legacy .doc file conversion
+- **poppler-utils**: For advanced PDF processing
+
+These are optional and can be installed later if needed.
 
 ---
 
