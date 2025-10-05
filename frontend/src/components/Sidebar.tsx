@@ -29,6 +29,10 @@ export const Sidebar = ({
   className,
   activeTab,
   onTabChange,
+}: {
+  className?: string;
+  activeTab: 'dashboard' | 'chat' | 'files';
+  onTabChange: (tab: 'dashboard' | 'chat' | 'files') => void;
 }) => {
   return (
     <div className={cn("pb-12 w-64", className)}>
