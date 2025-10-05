@@ -427,7 +427,7 @@ async def list_documents():
         print(f"Error listing documents: {e}")
         return {"error": str(e)}, 500
 
-@app.post("/documents/upload")
+@app.post("/api/documents/upload")
 async def upload_document(source_type: str = Form(...), file: UploadFile = File(...)):
     """Uploads a new document to the knowledge base for automatic processing and indexing."""
     if source_type not in ["internal", "external"]:
