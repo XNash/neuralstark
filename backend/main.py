@@ -407,7 +407,7 @@ async def chat_endpoint(request: ChatRequest):
         return {"error": str(e)}, 500
 
 
-@app.get("/documents")
+@app.get("/api/documents")
 async def list_documents():
     try:
         # Re-initialize ChromaDB client to ensure it reads the latest state from disk
