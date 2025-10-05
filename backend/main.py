@@ -483,8 +483,8 @@ async def upload_document(source_type: str = Form(...), file: UploadFile = File(
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         
-        # Dispatch Celery task for processing
-        process_document_task.delay(file_path, "created")
+        # Dispatch document processing (async if Celery available, sync otherwise)
+        dispatch_document_processing(file_path, "created")
 
         return {"message": "File uploaded successfully. Processing started.", "file_path": file_path, "source_type": source_type}
     except Exception as e:
