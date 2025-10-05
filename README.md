@@ -659,6 +659,8 @@ For comprehensive troubleshooting, see:
 
 ## 📖 Documentation
 
+- **[INSTALLATION_GUIDE.md](INSTALLATION_GUIDE.md)**: 🔧 **Complete installation guide for any environment**
+- **[setup.sh](setup.sh)**: ✅ Automated setup validation and environment check
 - **[QUICK_START.md](QUICK_START.md)**: ⚡ Simple quick start guide with common issues
 - **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)**: ⭐ Complete deployment documentation
 - **[README.md](README.md)**: 📘 This file - comprehensive overview
