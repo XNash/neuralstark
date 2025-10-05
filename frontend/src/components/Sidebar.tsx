@@ -7,12 +7,6 @@ import {
   Bot
 } from 'lucide-react';
 
-interface SidebarProps {
-  className?: string;
-  activeTab: 'dashboard' | 'chat' | 'files';
-  onTabChange: (tab: 'dashboard' | 'chat' | 'files') => void;
-}
-
 const sidebarItems = [
   {
     id: 'dashboard' as const,
