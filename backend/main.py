@@ -358,8 +358,14 @@ def _run_knowledge_base_search(input_json_string: str) -> str:
     context_parts = []
     sources = []
     for i, doc in enumerate(final_docs):
-        context_parts.append(f"[Document {i+1}]\n{doc.page_content}\n")
-        sources.append(os.path.basename(doc.metadata.get("source", "Unknown")))
+        # Skip documents with None or empty page_content
+        if doc.page_content and doc.page_content.strip():
+            context_parts.append(f"[Document {i+1}]\n{doc.page_content}\n")
+            sources.append(os.path.basename(doc.metadata.get("source", "Unknown")))
+    
+    if not context_parts:
+        logging.warning("No valid document content to build context")
+        return "Answer: No relevant information found in the knowledge base for this query.\nSources: None"
     
     context = "\n".join(context_parts)
     
