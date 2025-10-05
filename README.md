@@ -625,8 +625,14 @@ cd /path/to/neuralstark
 ### Common Issues
 
 1. **ChromaDB Errors** ("Could not connect to tenant" or "unable to open database file"):
-   - **Solution**: Run `./setup.sh` to create required directories
-   - Ensure `chroma_db/` directory exists and is writable
+   - **Cause**: Missing `chroma_db/` or `backend/knowledge_base/external/` directories
+   - **Solution**: Run `./run.sh` which automatically creates all required directories
+   - **Manual fix**: 
+     ```bash
+     mkdir -p chroma_db backend/knowledge_base/internal backend/knowledge_base/external
+     chmod -R 755 chroma_db backend/knowledge_base
+     ```
+   - Ensure `chroma_db/` directory exists and is writable before starting the backend
    
 2. **Backend loading**: Wait 20-30 seconds for ML models to load
 
