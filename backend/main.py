@@ -495,7 +495,7 @@ async def delete_document(request: DeleteRequest):
         logging.error(f"Error deleting file {request.file_path}: {e}")
         raise HTTPException(status_code=500, detail=f"Error deleting file: {e}")
 
-@app.post("/knowledge_base/reset")
+@app.post("/api/knowledge_base/reset")
 async def reset_knowledge_base(reset_type: str):
     """Resets the knowledge base. 
     - 'hard': Deletes all files and clears the vector store.
