@@ -40,14 +40,18 @@ export const Dashboard: React.FC = () => {
         apiClient.healthCheck(),
       ]);
 
-      setDocuments(documentsResponse.indexed_documents);
+      // Ensure documentsResponse has the expected structure
+      const documents = documentsResponse?.indexed_documents || [];
+      setDocuments(documents);
       setStats(prev => ({
         ...prev,
-        totalDocuments: documentsResponse.indexed_documents.length,
+        totalDocuments: documents.length,
         systemStatus: healthResponse.status === 'ok' ? 'online' : 'offline',
       }));
     } catch (error) {
-      setStats(prev => ({ ...prev, systemStatus: 'offline' }));
+      console.error('Error fetching dashboard data:', error);
+      setDocuments([]);
+      setStats(prev => ({ ...prev, systemStatus: 'offline', totalDocuments: 0 }));
     } finally {
       setIsLoading(false);
     }
