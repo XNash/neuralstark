@@ -322,6 +322,15 @@ def _run_knowledge_base_search(input_json_string: str) -> str:
     
     logging.info(f"After score filtering: {len(filtered_docs)} documents remain")
     
+    # Filter out documents with None or empty page_content
+    filtered_docs = [(doc, score) for doc, score in filtered_docs if doc.page_content and doc.page_content.strip()]
+    
+    if not filtered_docs:
+        logging.warning("All documents have empty or None page_content")
+        return "Answer: No relevant information found in the knowledge base for this query.\nSources: None"
+    
+    logging.info(f"After filtering out empty documents: {len(filtered_docs)} documents remain")
+    
     # Step 3: Rerank using cross-encoder for better relevance
     rerank_start = time.time()
     query_doc_pairs = [[query, doc.page_content] for doc, _ in filtered_docs]
