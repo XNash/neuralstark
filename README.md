@@ -707,6 +707,14 @@ See [RUNNING_THE_APP.md](RUNNING_THE_APP.md) for production deployment details.
 
 ## 📝 Recent Changes
 
+### Version 4.2 - Enhanced User Interface
+
+✅ **Theme Toggle**: Light/Dark mode with localStorage persistence  
+✅ **File Type Filters**: Category-based file filtering (All, Documents, Spreadsheets, Images)  
+✅ **Smart Categorization**: Automatic file type detection by extension  
+✅ **Real-time Counts**: Display file counts for each category  
+✅ **Enhanced UX**: Empty state handling for filtered results  
+
 ### Version 4.1 - Universal Deployment Scripts
 
 ✅ **Universal Scripts**: Work on any Linux environment (no sudo required)  
