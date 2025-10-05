@@ -37,7 +37,7 @@ You should see:
 - ✅ Celery workers (3 workers)
 
 ### Access the Application
-- **Frontend**: https://dev-automation-1.preview.emergentagent.com
+- **Frontend**: https://bat-converter.preview.emergentagent.com
 - **Backend API**: http://localhost:8001/docs
 
 ---

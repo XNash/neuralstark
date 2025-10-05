@@ -89,7 +89,7 @@ This document summarizes the recent updates made to the NeuralStark application 
 - **API Endpoints**: All responding correctly
 
 ### ✅ Preview Domain Access
-- **URL**: https://dev-automation-1.preview.emergentagent.com
+- **URL**: https://bat-converter.preview.emergentagent.com
 - **Status**: All pages working correctly
 - **No blocking errors**: Host validation passing
 - **API Endpoints**: All responding correctly
@@ -189,7 +189,7 @@ The Xynorash AI agent now has clearly documented tools:
 ✅ Backend service starts without errors  
 ✅ Frontend service starts without errors  
 ✅ Localhost access working (http://localhost:3000)  
-✅ Preview domain access working (https://dev-automation-1.preview.emergentagent.com)  
+✅ Preview domain access working (https://bat-converter.preview.emergentagent.com)  
 ✅ All three pages load correctly (Dashboard, Chat, Files)  
 ✅ No API errors on Files page  
 ✅ All API endpoints responding with correct data  
@@ -234,7 +234,7 @@ For issues or questions:
 - Check logs: `tail -f /var/log/supervisor/backend.err.log`
 - Check services: `sudo supervisorctl status`
 - Restart services: `sudo supervisorctl restart all`
-- Preview URL: https://dev-automation-1.preview.emergentagent.com
+- Preview URL: https://bat-converter.preview.emergentagent.com
 - Local URL: http://localhost:3000
 
 ---
