@@ -4,48 +4,35 @@ NeuralStark is a multi-platform AI assistant powered by **Xynorash**, an AI agen
 
 ## 🚀 Quick Start
 
-### First Time Setup (Required)
+### One-Command Setup & Start
 
-**Run setup validation once:**
-
-```bash
-chmod +x setup.sh
-./setup.sh
-```
-
-This will:
-- ✅ Create all required directories (`chroma_db/`, `logs/`, etc.)
-- ✅ Validate system prerequisites
-- ✅ Check dependencies
-- ✅ Verify permissions
-
-### One-Command Startup
-
-**Universal Scripts (Works on any Linux environment - no sudo required):**
+**Just run this - everything is automated!**
 
 ```bash
 # Make executable (first time only)
 chmod +x run.sh stop.sh
 
-# Start all services
+# Start everything (setup + install + run)
 ./run.sh
 
 # Stop services
 ./stop.sh
 ```
 
-The scripts will:
-- ✅ Auto-detect your Python virtual environment
-- ✅ Create required directories automatically
-- ✅ Install missing dependencies (Redis, MongoDB if needed)
-- ✅ Start MongoDB, Redis, Celery, Backend, and Frontend
-- ✅ Create local `logs/` directory for all logs
-- ✅ Perform health checks on all services
-- ✅ Work on Ubuntu, Debian, CentOS, macOS
+**That's it!** The `run.sh` script handles everything:
+- ✅ Creates all required directories (`chroma_db/`, `logs/`, etc.)
+- ✅ Sets up Python virtual environment
+- ✅ Validates system prerequisites (Python, Node.js)
+- ✅ Installs missing dependencies (Redis, MongoDB if needed)
+- ✅ Installs Python packages from requirements.txt
+- ✅ Installs frontend dependencies (yarn/npm)
+- ✅ Starts Redis, MongoDB, Celery, Backend, Frontend
+- ✅ Performs health checks on all services
+- ✅ Works on Ubuntu, Debian, CentOS, macOS
 
-**Startup time:** ~20-30 seconds (backend loads ML models)
+**Startup time:** ~2-5 minutes first time (installs dependencies), ~20-30 seconds after that
 
-> **⚠️ IMPORTANT:** If you encounter ChromaDB errors like "Could not connect to tenant" or "unable to open database file", ensure all directories exist by running `./setup.sh` first.
+> **💡 TIP:** You can also run `./setup.sh` first to validate your environment before starting services, but it's optional - `run.sh` does everything!
 
 ### Access the Application
 
