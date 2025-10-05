@@ -37,7 +37,7 @@ You should see:
 - ✅ Celery workers (3 workers)
 
 ### Access the Application
-- **Frontend**: https://packagefix.preview.emergentagent.com
+- **Frontend**: https://neuralstark-api.preview.emergentagent.com
 - **Backend API**: http://localhost:8001/docs
 
 ---
