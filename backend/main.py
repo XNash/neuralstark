@@ -31,7 +31,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 
 from backend.config import settings
 from .watcher import start_watcher_in_background, stop_watcher
-from backend.celery_app import process_document_task # Import Celery task
+from backend.celery_app import process_document_task, process_document_sync # Import Celery task and sync fallback
 from backend.document_parser import parse_document # Import parse_document for content retrieval
 
 logging.basicConfig(level=logging.INFO,
