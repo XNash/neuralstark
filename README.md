@@ -648,16 +648,23 @@ See [RUNNING_THE_APP.md](RUNNING_THE_APP.md) for production deployment details.
 
 ## 📝 Recent Changes
 
-### Version 0.3.0 - Latest Updates
+### Version 4.1 - Universal Deployment Scripts
+
+✅ **Universal Scripts**: Work on any Linux environment (no sudo required)  
+✅ **Local Logs**: All logs in `logs/` directory  
+✅ **Canvas Templates**: Included in backend configuration  
+✅ **Smart Detection**: Auto-finds virtual environments  
+✅ **Cross-Platform**: Ubuntu, Debian, CentOS, macOS support  
+✅ **Health Checks**: Comprehensive service verification  
+✅ **User-Friendly**: Clear error messages with solutions  
+
+### Previous Updates (Version 0.3.0)
 
 ✅ **Backend Renamed**: `neuralstark/` → `backend/`  
 ✅ **Full MS Office Support**: .doc and .docx files with OCR  
 ✅ **Enhanced OCR**: Images, scanned PDFs, embedded images  
 ✅ **Resource Optimization**: 75% reduction in memory usage  
-✅ **Network Access**: No host restrictions, CORS enabled  
-✅ **Startup Scripts**: One-command setup for all platforms  
-
-For detailed changes, see [CHANGES.md](CHANGES.md).
+✅ **Network Access**: No host restrictions, CORS enabled
 
 ---
 
