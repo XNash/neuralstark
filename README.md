@@ -2,13 +2,13 @@
 
 NeuralStark is a multi-platform AI assistant powered by **Xynorash**, an AI agent trained by NeuralStark to help professionals with their firm, societies, or work data. Xynorash provides intelligent assistance, manages knowledge bases, processes documents, and generates dynamic data visualizations.
 
-> **⚡ NEW in v6.0:** One-command setup! Just run `./run.sh` and everything is handled automatically - setup, installation, and startup. No manual steps needed!
+> **⚡ NEW in v6.0:** One-command setup! Just run `./run.sh` (Linux/macOS) or `run_windows.bat` (Windows) and everything is handled automatically - setup, installation, and startup. No manual steps needed!
 
 ## 🚀 Quick Start
 
 ### One-Command Setup & Start
 
-**Just run this - everything is automated!**
+**Linux / macOS:**
 
 ```bash
 # Make executable (first time only)
@@ -21,7 +21,17 @@ chmod +x run.sh stop.sh
 ./stop.sh
 ```
 
-**That's it!** The `run.sh` script handles everything:
+**Windows:**
+
+```cmd
+# Start everything (setup + install + run)
+run_windows.bat
+
+# Stop services
+stop_windows.bat
+```
+
+**That's it!** The startup script handles everything:
 - ✅ Creates all required directories (`chroma_db/`, `logs/`, etc.)
 - ✅ Sets up Python virtual environment
 - ✅ Validates system prerequisites (Python, Node.js)
@@ -30,11 +40,13 @@ chmod +x run.sh stop.sh
 - ✅ Installs frontend dependencies (yarn/npm)
 - ✅ Starts Redis, MongoDB, Celery, Backend, Frontend
 - ✅ Performs health checks on all services
-- ✅ Works on Ubuntu, Debian, CentOS, macOS
+- ✅ Works on Ubuntu, Debian, CentOS, macOS, **and Windows**
 
 **Startup time:** ~2-5 minutes first time (installs dependencies), ~20-30 seconds after that
 
-> **💡 TIP:** You can also run `./setup.sh` first to validate your environment before starting services, but it's optional - `run.sh` does everything!
+> **💡 TIP for Linux/macOS:** You can also run `./setup.sh` first to validate your environment before starting services, but it's optional - `run.sh` does everything!
+> 
+> **💡 TIP for Windows:** See [WINDOWS_SETUP.md](WINDOWS_SETUP.md) for detailed Windows setup instructions and troubleshooting
 
 ### Access the Application
 
