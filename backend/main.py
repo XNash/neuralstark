@@ -238,19 +238,30 @@ def generate_canvas_preview(data: str) -> dict:
 
 
 # --- LangChain Setup ---
-# Initialize embeddings for retrieval
-embeddings = HuggingFaceEmbeddings(model_name=settings.EMBEDDING_MODEL_NAME)
+# Initialize embeddings for retrieval with optimized settings
+logging.info(f"Loading embedding model: {settings.EMBEDDING_MODEL_NAME}...")
+embeddings = HuggingFaceEmbeddings(
+    model_name=settings.EMBEDDING_MODEL_NAME,
+    model_kwargs={'device': 'cpu'},
+    encode_kwargs={'batch_size': settings.EMBEDDING_BATCH_SIZE, 'normalize_embeddings': True}
+)
+logging.info("✓ Embedding model loaded successfully")
+
+# Initialize cross-encoder for reranking
+logging.info(f"Loading reranker model: {settings.RERANKER_MODEL}...")
+reranker = CrossEncoder(settings.RERANKER_MODEL)
+logging.info("✓ Reranker model loaded successfully")
 
 # Initialize LLM for chat and agent reasoning
 llm = ChatGoogleGenerativeAI(model=settings.LLM_MODEL, google_api_key=settings.LLM_API_KEY)
 
-# Custom Knowledge Base Search function to allow filtering by source_type
+# Custom Knowledge Base Search function with improved retrieval and reranking
 def _run_knowledge_base_search(input_json_string: str) -> str:
-    """Performs a knowledge base search, optionally filtering by source_type (internal/external).
+    """Performs an optimized knowledge base search with reranking for better accuracy.
     Input should be a JSON string with 'query' and optional 'source_type' (e.g., {"query": "How to cook rice?", "source_type": "external"}).
     """
     start_time = time.time()
-    print(f"Performing knowledge base search for input: {input_json_string}")
+    logging.info(f"Performing knowledge base search for input: {input_json_string}")
     
     import json
     try:
@@ -266,7 +277,6 @@ def _run_knowledge_base_search(input_json_string: str) -> str:
         return "Error: 'query' key is missing in the input JSON for KnowledgeBaseSearch."
 
     # Re-initialize ChromaDB client to ensure it reads the latest state from disk
-    # This is a temporary solution for development; for production, consider a more efficient refresh mechanism
     current_vector_store = Chroma(persist_directory=settings.CHROMA_DB_PATH, embedding_function=embeddings)
 
     # Build the filter for ChromaDB
@@ -274,33 +284,102 @@ def _run_knowledge_base_search(input_json_string: str) -> str:
     if source_type and source_type in ["internal", "external"]:
         chroma_filter["source_type"] = source_type
 
-    # Create a retriever with the filter
-    search_kwargs = {}
+    # Step 1: Retrieve more candidates (k=10) for reranking
+    search_kwargs = {"k": settings.RETRIEVAL_K}
     if chroma_filter:
         search_kwargs["filter"] = chroma_filter
-    retriever = current_vector_store.as_retriever(search_kwargs=search_kwargs)
     
-    # Create a temporary RAG chain for this specific query
-    qa_chain_filtered = RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",
-        retriever=retriever,
-        return_source_documents=True
-    )
+    logging.info(f"Retrieving top {settings.RETRIEVAL_K} candidates...")
+    retrieval_start = time.time()
     
-    response = qa_chain_filtered.invoke({"query": query})
+    # Use similarity_search_with_score for better filtering
+    try:
+        candidate_docs = current_vector_store.similarity_search_with_score(
+            query, 
+            k=settings.RETRIEVAL_K,
+            filter=chroma_filter if chroma_filter else None
+        )
+        logging.info(f"Retrieved {len(candidate_docs)} candidates in {time.time() - retrieval_start:.4f}s")
+    except Exception as e:
+        logging.error(f"Error during retrieval: {e}")
+        # Fallback to regular search
+        candidate_docs = [(doc, 0.0) for doc in current_vector_store.similarity_search(
+            query, 
+            k=settings.RETRIEVAL_K,
+            filter=chroma_filter if chroma_filter else None
+        )]
     
-    # Format the response to include source documents for the agent
-    valid_source_documents = [doc for doc in response["source_documents"] if doc.page_content is not None and doc.page_content.strip() != '']
+    if not candidate_docs:
+        logging.warning("No documents found in knowledge base for this query")
+        return "Answer: No relevant information found in the knowledge base for this query.\nSources: None"
+    
+    # Step 2: Apply score threshold filtering
+    filtered_docs = [(doc, score) for doc, score in candidate_docs if score <= (1 - settings.RETRIEVAL_SCORE_THRESHOLD)]
+    
+    if not filtered_docs:
+        logging.warning(f"All documents filtered out by score threshold ({settings.RETRIEVAL_SCORE_THRESHOLD})")
+        filtered_docs = candidate_docs[:3]  # Keep top 3 if all filtered
+    
+    logging.info(f"After score filtering: {len(filtered_docs)} documents remain")
+    
+    # Step 3: Rerank using cross-encoder for better relevance
+    rerank_start = time.time()
+    query_doc_pairs = [[query, doc.page_content] for doc, _ in filtered_docs]
+    
+    try:
+        rerank_scores = reranker.predict(query_doc_pairs)
+        logging.info(f"Reranking completed in {time.time() - rerank_start:.4f}s")
+        
+        # Combine documents with rerank scores
+        reranked_results = list(zip(filtered_docs, rerank_scores))
+        # Sort by rerank score (higher is better for cross-encoder)
+        reranked_results.sort(key=lambda x: x[1], reverse=True)
+        
+        # Take top K after reranking
+        top_reranked = reranked_results[:settings.RERANKER_TOP_K]
+        final_docs = [doc for (doc, _), _ in top_reranked]
+        
+        logging.info(f"Selected top {len(final_docs)} documents after reranking")
+        logging.info(f"Rerank scores: {[float(score) for _, score in top_reranked]}")
+    except Exception as e:
+        logging.error(f"Error during reranking: {e}. Using original ranking.")
+        final_docs = [doc for doc, _ in filtered_docs[:settings.RERANKER_TOP_K]]
+    
+    # Step 4: Build context from reranked documents
+    context_parts = []
+    sources = []
+    for i, doc in enumerate(final_docs):
+        context_parts.append(f"[Document {i+1}]\n{doc.page_content}\n")
+        sources.append(os.path.basename(doc.metadata.get("source", "Unknown")))
+    
+    context = "\n".join(context_parts)
+    
+    # Step 5: Generate answer using LLM with improved context
+    qa_prompt = f"""Utilisez les documents suivants pour répondre à la question. Si vous ne trouvez pas la réponse dans les documents, dites-le clairement.
 
-    if valid_source_documents:
-        sources = ", ".join([os.path.basename(doc.metadata["source"]) for doc in valid_source_documents])
-        final_answer = f"Answer: {response['result']}\nSources: {sources}"
-    else:
-        final_answer = f"Answer: {response['result']}\nSources: None"
+Documents de référence:
+{context}
 
+Question: {query}
+
+Réponse détaillée basée sur les documents ci-dessus:"""
+    
+    try:
+        llm_start = time.time()
+        answer = llm.invoke(qa_prompt)
+        logging.info(f"LLM response generated in {time.time() - llm_start:.4f}s")
+        
+        result_text = answer.content if hasattr(answer, 'content') else str(answer)
+    except Exception as e:
+        logging.error(f"Error generating LLM response: {e}")
+        result_text = "Error generating response from the retrieved documents."
+    
+    # Format final response
+    unique_sources = list(dict.fromkeys(sources))  # Remove duplicates while preserving order
+    final_answer = f"Answer: {result_text}\nSources: {', '.join(unique_sources)}"
+    
     end_time = time.time()
-    logging.info(f"Knowledge base search for '{query}' took {end_time - start_time:.4f} seconds.")
+    logging.info(f"Total knowledge base search for '{query}' took {end_time - start_time:.4f} seconds.")
     return final_answer
 
 # Define the tools for the agent
@@ -318,7 +397,7 @@ tools = [
     Tool(
         name="KnowledgeBaseSearch",
         func=_run_knowledge_base_search,
-        description="Use this tool to answer questions from the knowledge base. You can also answer general questions if no relevant documents are found. Do NOT write code. Respond only with Action and Action Input."
+        description="Utilisez cet outil PRIORITAIREMENT pour répondre aux questions à partir de la base de connaissances. L'outil utilise une recherche sémantique avancée avec reranking pour trouver les informations les plus pertinentes. L'entrée doit être une chaîne JSON avec 'query' et optionnellement 'source_type' (interne/externe). Exemple: {\"query\": \"Votre question ici\", \"source_type\": \"internal\"}. L'outil retourne une réponse basée sur les documents les plus pertinents."
     ),
     Tool(
         name="CanvasGenerator",
@@ -328,7 +407,7 @@ tools = [
 ]
 
 # Get the prompt for the ReAct agent
-# Customize the prompt to emphasize KnowledgeBaseSearch priority
+# Optimized prompt for better RAG utilization and context understanding
 prompt_template = """Vous êtes Xynorash, un agent IA entraîné par NeuralStark pour aider les professionnels avec les données de leur entreprise, société ou travail.
 
 Vous avez accès aux outils suivants :
@@ -336,12 +415,16 @@ Vous avez accès aux outils suivants :
 
 Les noms des outils sont : {tool_names}
 
-Répondez à la question de l'utilisateur. Si vous avez besoin d'informations supplémentaires, utilisez les outils à votre disposition. Une fois que vous avez suffisamment d'informations, fournissez une réponse finale et complète.
+**Instructions Importantes:**
+1. Pour TOUTE question nécessitant des informations spécifiques, utilisez d'abord l'outil KnowledgeBaseSearch qui utilise une recherche sémantique avancée avec reranking.
+2. Basez vos réponses sur les informations retournées par les outils, en particulier les sources citées.
+3. Si les informations de la base de connaissances sont insuffisantes, vous pouvez compléter avec vos connaissances générales, mais mentionnez-le clairement.
+4. Citez toujours les sources des documents utilisés dans votre réponse.
 
-**Instructions Spéciales:**
+**Format de Réponse:**
 *   Si vous utilisez un outil, l'observation de l'outil sera disponible pour votre prochaine pensée.
-*   Si vous avez la réponse finale, commencez votre réponse par "Final Answer:".
-*   Lorsque vous utilisez l'outil CanvasGenerator, votre réponse finale doit être uniquement l'objet JSON du canevas, sans aucun texte ou description supplémentaire.
+*   Une fois que vous avez suffisamment d'informations, commencez votre réponse finale par "Final Answer:".
+*   Pour l'outil CanvasGenerator, la réponse finale doit être uniquement l'objet JSON du canevas.
 
 Commencez !
 
@@ -554,46 +637,4 @@ async def reset_knowledge_base(reset_type: str):
         # The default collection name used by LangChain's Chroma is "langchain"
         try:
             collection = client.get_collection("langchain")
-            # Get all items in the collection to delete them by ID
-            # This is safer than deleting and recreating the collection
-            results = collection.get()
-            if results["ids"]:
-                collection.delete(ids=results["ids"])
-            print("Successfully cleared ChromaDB collection.")
-        except (ValueError, Exception) as e:
-            # Collection doesn't exist or error occurred - try to create it
-            print(f"ChromaDB collection issue: {e}. Will create fresh collection during reindexing.")
-            try:
-                # Try to delete the collection if it exists but is corrupted
-                client.delete_collection("langchain")
-            except Exception:
-                pass  # Collection doesn't exist, that's fine
-
-        if reset_type == "hard":
-            # Delete all files in internal and external knowledge base directories
-            for dir_path in [settings.INTERNAL_KNOWLEDGE_BASE_PATH, settings.EXTERNAL_KNOWLEDGE_BASE_PATH]:
-                if os.path.exists(dir_path):
-                    for filename in os.listdir(dir_path):
-                        file_path = os.path.join(dir_path, filename)
-                        if os.path.isfile(file_path):
-                            os.remove(file_path)
-            return {"message": "Knowledge base has been hard reset. All files and embeddings have been deleted."}
-
-        elif reset_type == "soft":
-            # Re-index all existing files
-            files_to_reindex = []
-            for dir_path in [settings.INTERNAL_KNOWLEDGE_BASE_PATH, settings.EXTERNAL_KNOWLEDGE_BASE_PATH]:
-                if os.path.exists(dir_path):
-                    for filename in os.listdir(dir_path):
-                        file_path = os.path.join(dir_path, filename)
-                        if os.path.isfile(file_path):
-                            files_to_reindex.append(file_path)
-            
-            for file_path in files_to_reindex:
-                dispatch_document_processing(file_path, "created")
-            
-            return {"message": f"Knowledge base has been soft reset. Re-indexing {len(files_to_reindex)} files."}
-
-    except Exception as e:
-        logging.error(f"Error resetting knowledge base: {e}")
-        raise HTTPException(status_code=500, detail=f"Error resetting knowledge base: {e}")
+            # Get all i
