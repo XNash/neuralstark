@@ -12,7 +12,7 @@ The application is already set up and running with:
 - Redis and Celery started manually
 
 ### Access the Application
-- **Frontend**: https://b0b1d01f-1e5b-4ae1-83d1-3f051f954a43.preview.emergentagent.com
+- **Frontend**: https://stark-dbfix.preview.emergentagent.com
 - **Backend API**: http://localhost:8001
 - **API Docs**: http://localhost:8001/docs
 
@@ -258,7 +258,7 @@ curl -X POST "http://localhost:8001/chat" \
 
 ### 4. Access Frontend
 Open your browser to:
-https://b0b1d01f-1e5b-4ae1-83d1-3f051f954a43.preview.emergentagent.com
+https://stark-dbfix.preview.emergentagent.com
 
 ## 🚀 Production Recommendations
 
