@@ -425,7 +425,7 @@ async def list_documents():
         return {"indexed_documents": list(unique_sources)}
     except Exception as e:
         print(f"Error listing documents: {e}")
-        return {"error": str(e)}, 500
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/documents/upload")
 async def upload_document(source_type: str = Form(...), file: UploadFile = File(...)):
