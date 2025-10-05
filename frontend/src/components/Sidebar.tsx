@@ -31,24 +31,6 @@ const sidebarItems = [
   },
 ];
 
-const quickActions = [
-  {
-    id: 'analytics',
-    label: 'Analytics',
-    icon: BarChart3,
-  },
-  {
-    id: 'database',
-    label: 'Database',
-    icon: Database,
-  },
-  {
-    id: 'settings',
-    label: 'Settings',
-    icon: Settings,
-  },
-];
-
 export const Sidebar = ({
   className,
   activeTab,
