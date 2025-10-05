@@ -467,8 +467,11 @@ neuralstark/
 │
 ├── run.sh                     # Universal startup script (Linux/macOS)
 ├── stop.sh                    # Universal stop script (Linux/macOS)
+├── run_windows.bat            # Universal startup script (Windows)
+├── stop_windows.bat           # Universal stop script (Windows)
 │
 ├── README.md                  # This file
+├── WINDOWS_SETUP.md           # Windows setup guide
 ├── QUICK_START.md             # Quick start guide
 ├── DEPLOYMENT_GUIDE.md        # Complete deployment guide
 └── canvas_templates.json      # Visualization templates
