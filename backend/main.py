@@ -48,6 +48,26 @@ except FileNotFoundError:
 except json.JSONDecodeError:
     logging.error("Error decoding canvas_templates.json. Canvas generation may fail.")
 
+
+
+# --- Helper Function for Document Processing ---
+def dispatch_document_processing(file_path: str, event_type: str):
+    """
+    Try to dispatch document processing to Celery. 
+    If Celery/Redis is not available, process synchronously.
+    """
+    try:
+        # Try to dispatch to Celery
+        process_document_task.delay(file_path, event_type)
+        logging.info(f"Dispatched {file_path} to Celery worker")
+        return {"status": "dispatched_async", "file_path": file_path}
+    except Exception as e:
+        # Celery/Redis not available, process synchronously
+        logging.warning(f"Celery not available ({str(e)}), processing synchronously")
+        result = process_document_sync(file_path, event_type)
+        logging.info(f"Processed {file_path} synchronously: {result}")
+        return result
+
 # --- PDF Generation Functions (Tools) ---
 KNOWLEDGE_BASE_DIR = settings.INTERNAL_KNOWLEDGE_BASE_PATH # Use the configured path
 
