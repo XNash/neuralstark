@@ -67,7 +67,7 @@ const ComboChartCanvas: React.FC<ComboChartCanvasProps> = ({ canvasData }) => {
         display: plugins?.legend?.display ?? true,
       },
       tooltip: {
-        mode: 'index',
+        mode: 'index' as const,
         intersect: false,
       },
     },
