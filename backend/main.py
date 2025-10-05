@@ -387,49 +387,49 @@ tools = [
     Tool(
         name="FinancialReviewGenerator",
         func=generate_financial_review_pdf,
-        description="Utile pour générer des rapports PDF de revue financière. L'entrée doit être une chaîne JSON contenant des données financières (par exemple, {\"company\": \"ABC Corp\", \"revenue\": \"$1M\", \"profit\": \"$200K\"})."
+        description="Use this tool to generate financial review PDF reports. Input must be a JSON string with financial data. Example: {\"company\": \"ABC Corp\", \"revenue\": \"$1M\", \"profit\": \"$200K\"}. Respond only with Action and Action Input."
     ),
     Tool(
         name="QuoteGenerator",
         func=generate_quote_pdf,
-        description="Utile pour générer des documents PDF de devis. L'entrée doit être une chaîne JSON contenant les détails du devis (par exemple, {\"item\": \"Service A\", \"price\": \"$500\", \"client\": \"Client X\"})."
+        description="Use this tool to generate quote/quotation PDF documents. Input must be a JSON string with quote details. Example: {\"item\": \"Service A\", \"price\": \"$500\", \"client\": \"Client X\"}. Respond only with Action and Action Input."
     ),
     Tool(
         name="KnowledgeBaseSearch",
         func=_run_knowledge_base_search,
-        description="Utilisez cet outil PRIORITAIREMENT pour répondre aux questions à partir de la base de connaissances. L'outil utilise une recherche sémantique avancée avec reranking pour trouver les informations les plus pertinentes. L'entrée doit être une chaîne JSON avec 'query' et optionnellement 'source_type' (interne/externe). Exemple: {\"query\": \"Votre question ici\", \"source_type\": \"internal\"}. L'outil retourne une réponse basée sur les documents les plus pertinents."
+        description="Use this tool to answer questions from the knowledge base. You can also answer general questions if no relevant documents are found. Do NOT write code. Respond only with Action and Action Input."
     ),
     Tool(
         name="CanvasGenerator",
         func=generate_canvas_preview,
-        description=f"Utile pour générer un aperçu visuel des données sur un canevas. Utilisez cet outil lorsque l'utilisateur demande un résumé, un graphique ou une représentation visuelle des informations. L'entrée doit être une chaîne JSON avec 'canvas_type' et 'data'. Les canvas_types disponibles sont : {list(canvas_templates.get('visualization_formats', {}).keys())}"
+        description=f"Use this tool to generate interactive data visualizations and charts. Input must be a JSON string with 'canvas_type' and 'data'. Available types: {list(canvas_templates.get('visualization_formats', {}).keys())}. Respond only with Action and Action Input."
     )
 ]
 
 # Get the prompt for the ReAct agent
 # Optimized prompt for better RAG utilization and context understanding
-prompt_template = """Vous êtes Xynorash, un agent IA entraîné par NeuralStark pour aider les professionnels avec les données de leur entreprise, société ou travail.
+prompt_template = """You are Xynorash, an AI agent trained by NeuralStark to help professionals with their firm, company, or work data.
 
-Vous avez accès aux outils suivants :
+You have access to the following tools:
 {tools}
 
-Les noms des outils sont : {tool_names}
+Tool names: {tool_names}
 
-**Instructions Importantes:**
-1. Pour TOUTE question nécessitant des informations spécifiques, utilisez d'abord l'outil KnowledgeBaseSearch qui utilise une recherche sémantique avancée avec reranking.
-2. Basez vos réponses sur les informations retournées par les outils, en particulier les sources citées.
-3. Si les informations de la base de connaissances sont insuffisantes, vous pouvez compléter avec vos connaissances générales, mais mentionnez-le clairement.
-4. Citez toujours les sources des documents utilisés dans votre réponse.
+**Important Instructions:**
+1. For ANY question requiring specific information, use KnowledgeBaseSearch tool first - it uses advanced semantic search with reranking.
+2. Base your answers on information returned by tools, especially cited sources.
+3. If knowledge base information is insufficient, you may supplement with general knowledge, but clearly mention this.
+4. Always cite document sources used in your response.
 
-**Format de Réponse:**
-*   Si vous utilisez un outil, l'observation de l'outil sera disponible pour votre prochaine pensée.
-*   Une fois que vous avez suffisamment d'informations, commencez votre réponse finale par "Final Answer:".
-*   Pour l'outil CanvasGenerator, la réponse finale doit être uniquement l'objet JSON du canevas.
+**Response Format:**
+*   When you use a tool, its observation will be available for your next thought.
+*   Once you have sufficient information, begin your final response with "Final Answer:".
+*   For CanvasGenerator tool, the final response must be only the canvas JSON object.
 
-Commencez !
+Begin!
 
-Question : {input}
-Pensée :{agent_scratchpad}"""
+Question: {input}
+Thought:{agent_scratchpad}"""
 prompt = PromptTemplate.from_template(prompt_template)
 
 # Create the agent
@@ -570,110 +570,4 @@ async def upload_document(source_type: str = Form(...), file: UploadFile = File(
             shutil.copyfileobj(file.file, buffer)
         
         # Dispatch document processing (async if Celery available, sync otherwise)
-        dispatch_document_processing(file_path, "created")
-
-        return {"message": "File uploaded successfully. Processing started.", "file_path": file_path, "source_type": source_type}
-    except Exception as e:
-        logging.error(f"Error uploading file {file.filename}: {e}")
-        raise HTTPException(status_code=500, detail=f"Error uploading file: {e}")
-
-@app.get("/api/documents/content")
-async def get_document_content(file_path: str):
-    """Retrieves the extracted text content of a specific document from the knowledge base."""
-    # Basic security check: Ensure the file path is within the knowledge base directories
-    abs_file_path = os.path.abspath(file_path)
-    internal_kb_path = os.path.abspath(settings.INTERNAL_KNOWLEDGE_BASE_PATH)
-    external_kb_path = os.path.abspath(settings.EXTERNAL_KNOWLEDGE_BASE_PATH)
-
-    if not (abs_file_path.startswith(internal_kb_path) or abs_file_path.startswith(external_kb_path)):
-        raise HTTPException(status_code=400, detail="File path is outside knowledge base directories.")
-
-    if not os.path.exists(abs_file_path):
-        raise HTTPException(status_code=404, detail="File not found.")
-
-    try:
-        content = parse_document(abs_file_path)
-        if content is None:
-            raise HTTPException(status_code=500, detail="Could not extract content from the file.")
-        return {"file_path": file_path, "content": content}
-    except Exception as e:
-        logging.error(f"Error retrieving content for {file_path}: {e}")
-        raise HTTPException(status_code=500, detail=f"Error retrieving content: {e}")
-
-@app.post("/api/documents/delete")
-async def delete_document(request: DeleteRequest):
-    """Deletes a document from the knowledge base. This will also trigger its removal from the vector store."""
-    # Basic security check: Ensure the file path is within the knowledge base directories
-    abs_file_path = os.path.abspath(request.file_path)
-    internal_kb_path = os.path.abspath(settings.INTERNAL_KNOWLEDGE_BASE_PATH)
-    external_kb_path = os.path.abspath(settings.EXTERNAL_KNOWLEDGE_BASE_PATH)
-
-    if not (abs_file_path.startswith(internal_kb_path) or abs_file_path.startswith(external_kb_path)):
-        raise HTTPException(status_code=400, detail="File path is outside knowledge base directories.")
-
-    if not os.path.exists(abs_file_path):
-        raise HTTPException(status_code=404, detail="File not found.")
-
-    try:
-        os.remove(abs_file_path)
-        # Watchdog will pick up the deletion and trigger the Celery task
-        return {"message": "File deletion initiated. It will be removed from the knowledge base."}
-    except Exception as e:
-        logging.error(f"Error deleting file {request.file_path}: {e}")
-        raise HTTPException(status_code=500, detail=f"Error deleting file: {e}")
-
-@app.post("/api/knowledge_base/reset")
-async def reset_knowledge_base(reset_type: str):
-    """Resets the knowledge base. 
-    - 'hard': Deletes all files and clears the vector store.
-    - 'soft': Re-indexes all existing files.
-    """
-    if reset_type not in ["hard", "soft"]:
-        raise HTTPException(status_code=400, detail="Invalid reset_type. Must be 'hard' or 'soft'.")
-
-    try:
-        # Clear the ChromaDB vector store using the client API
-        client = chromadb.PersistentClient(path=settings.CHROMA_DB_PATH)
-        # The default collection name used by LangChain's Chroma is "langchain"
-        try:
-            collection = client.get_collection("langchain")
-            # Get all items in the collection to delete them by ID
-            results = collection.get()
-            if results["ids"]:
-                collection.delete(ids=results["ids"])
-            print("Successfully cleared ChromaDB collection.")
-        except (ValueError, Exception) as e:
-            print(f"ChromaDB collection issue: {e}. Will create fresh collection during reindexing.")
-            try:
-                client.delete_collection("langchain")
-            except Exception:
-                pass
-
-        if reset_type == "hard":
-            # Delete all files in internal and external knowledge base directories
-            for dir_path in [settings.INTERNAL_KNOWLEDGE_BASE_PATH, settings.EXTERNAL_KNOWLEDGE_BASE_PATH]:
-                if os.path.exists(dir_path):
-                    for filename in os.listdir(dir_path):
-                        file_path = os.path.join(dir_path, filename)
-                        if os.path.isfile(file_path):
-                            os.remove(file_path)
-            return {"message": "Knowledge base has been hard reset. All files and embeddings have been deleted."}
-
-        elif reset_type == "soft":
-            # Re-index all existing files
-            files_to_reindex = []
-            for dir_path in [settings.INTERNAL_KNOWLEDGE_BASE_PATH, settings.EXTERNAL_KNOWLEDGE_BASE_PATH]:
-                if os.path.exists(dir_path):
-                    for filename in os.listdir(dir_path):
-                        file_path = os.path.join(dir_path, filename)
-                        if os.path.isfile(file_path):
-                            files_to_reindex.append(file_path)
-            
-            for file_path in files_to_reindex:
-                dispatch_document_processing(file_path, "created")
-            
-            return {"message": f"Knowledge base has been soft reset. Re-indexing {len(files_to_reindex)} files."}
-
-    except Exception as e:
-        logging.error(f"Error resetting knowledge base: {e}")
-        raise HTTPException(status_code=500, detail=f"Error resetting knowledge base: {e}")
+        dispat

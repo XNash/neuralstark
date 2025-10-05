@@ -633,16 +633,29 @@ cd /path/to/neuralstark
      chmod -R 755 chroma_db backend/knowledge_base
      ```
    - Ensure `chroma_db/` directory exists and is writable before starting the backend
+
+2. **Embedding Dimension Mismatch** ("Collection expecting embedding with dimension of 384, got 1024"):
+   - **Cause**: ChromaDB collection was created with a different embedding model
+   - **Solution**: Reset ChromaDB to recreate with correct dimensions
+   - **Quick fix**:
+     ```bash
+     ./stop.sh
+     rm -rf chroma_db
+     mkdir -p chroma_db
+     ./run.sh
+     ```
+   - Documents will be automatically reindexed
+   - See [CHROMADB_FIX_NOTES.md](CHROMADB_FIX_NOTES.md) for detailed instructions
    
-2. **Backend loading**: Wait 20-30 seconds for ML models to load
+3. **Backend loading**: Wait 20-30 seconds for ML models to load
 
-3. **Port conflicts**: Use `./stop.sh` then `./run.sh`
+4. **Port conflicts**: Use `./stop.sh` then `./run.sh`
 
-4. **Redis missing**: Install Redis (see Prerequisites)
+5. **Redis missing**: Install Redis (see Prerequisites)
 
-5. **Logs location**: Check `logs/` directory in project root
+6. **Logs location**: Check `logs/` directory in project root
 
-6. **Dependencies**: Run `pip install -r backend/requirements.txt`
+7. **Dependencies**: Run `pip install -r backend/requirements.txt`
 
 For comprehensive troubleshooting, see:
 - **[INSTALLATION_GUIDE.md](INSTALLATION_GUIDE.md)** - Complete installation for any environment

@@ -128,3 +128,146 @@ ChromaDB (used as the vector database for document embeddings) requires:
 ---
 
 **Note**: This fix ensures the application works correctly whether started via `./run.sh` or manually with `uvicorn`.
+
+---
+
+## Embedding Dimension Mismatch Fix
+
+### New Issue: Embedding Dimension Mismatch
+**Date**: October 5, 2025  
+**Status**: ✅ SOLUTION PROVIDED
+
+### Error Message
+```
+chromadb.errors.InvalidArgumentError: Collection expecting embedding with dimension of 384, got 1024
+```
+
+### Root Cause
+This error occurs when the embedding model changes but ChromaDB still has collections created with the old model:
+
+1. **Old Model**: `all-MiniLM-L6-v2` produces 384-dimensional embeddings
+2. **New Model**: `BAAI/bge-m3` produces 1024-dimensional embeddings
+
+ChromaDB collections are tied to the embedding dimension they were created with and cannot handle dimension mismatches.
+
+### Solution: Reset ChromaDB
+
+To fix this error, you need to reset the ChromaDB vector store:
+
+#### Option 1: Quick Reset (Delete and Recreate)
+
+```bash
+# 1. Stop all services
+./stop.sh
+
+# 2. Backup your ChromaDB (optional but recommended)
+cp -r chroma_db chroma_db_backup_$(date +%Y%m%d_%H%M%S)
+
+# 3. Delete the ChromaDB directory
+rm -rf chroma_db
+
+# 4. Recreate the directory
+mkdir -p chroma_db
+chmod 755 chroma_db
+
+# 5. Restart services (will recreate ChromaDB with correct dimensions)
+./run.sh
+```
+
+#### Option 2: Python Reset Script
+
+Create a file `reset_chromadb.py` in `/app/` with the following content:
+
+```python
+#!/usr/bin/env python3
+import os
+import shutil
+from pathlib import Path
+import sys
+
+# Add backend to path
+sys.path.insert(0, str(Path(__file__).parent))
+from backend.config import settings
+
+def reset_chromadb():
+    """Reset ChromaDB to fix embedding dimension mismatch."""
+    chroma_path = settings.CHROMA_DB_PATH
+    
+    print(f"📁 ChromaDB Path: {chroma_path}")
+    print(f"🤖 Embedding Model: {settings.EMBEDDING_MODEL_NAME}")
+    print()
+    
+    # Confirm
+    response = input("⚠️  Delete ChromaDB and reindex all documents? (yes/no): ")
+    if response.lower() != "yes":
+        print("❌ Cancelled")
+        return
+    
+    # Delete
+    if os.path.exists(chroma_path):
+        print(f"🗑️  Deleting {chroma_path}")
+        shutil.rmtree(chroma_path)
+    
+    # Recreate
+    os.makedirs(chroma_path, exist_ok=True)
+    print(f"✅ Created fresh ChromaDB directory")
+    print()
+    print("📝 Next: Restart services with ./run.sh")
+
+if __name__ == "__main__":
+    reset_chromadb()
+```
+
+Then run:
+```bash
+python reset_chromadb.py
+```
+
+### What Happens After Reset?
+
+1. **Services Restart**: ChromaDB creates a new collection with the correct embedding dimension (1024)
+2. **Auto-Reindexing**: The file watcher automatically reindexes all documents from:
+   - `/app/backend/knowledge_base/internal/`
+   - `/app/backend/knowledge_base/external/`
+3. **New Embeddings**: All documents are re-embedded using `BAAI/bge-m3`
+
+### Verification
+
+Check that reindexing is working:
+
+```bash
+# Watch Celery logs for reindexing progress
+tail -f logs/celery_worker.log
+
+# Check indexed documents
+curl http://localhost:8001/api/documents
+
+# Verify no errors in backend
+tail -f logs/backend.log | grep -i error
+```
+
+### Prevention
+
+To avoid this issue in the future:
+
+1. **Don't change embedding models** once you have indexed documents
+2. **If you must change models**, always reset ChromaDB first
+3. **Keep backups** of your ChromaDB directory before making changes
+
+### Configuration Check
+
+Verify your current embedding model in `/app/backend/config.py`:
+
+```python
+# Line 32
+EMBEDDING_MODEL_NAME: str = os.getenv("EMBEDDING_MODEL_NAME", "BAAI/bge-m3")
+```
+
+### Model Comparison
+
+| Model | Dimensions | Quality | Speed |
+|-------|-----------|---------|-------|
+| all-MiniLM-L6-v2 | 384 | Good | Fast |
+| BAAI/bge-m3 | 1024 | Better | Slower |
+
+The `BAAI/bge-m3` model provides better semantic understanding but requires more resources.
