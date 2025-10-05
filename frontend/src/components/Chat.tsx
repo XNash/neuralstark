@@ -129,12 +129,6 @@ export const Chat: React.FC = () => {
     }
   };
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(value);
-  };
-
-  
-
   return (
     <div className="flex-1 flex flex-col">
       <div className="p-4 md:p-8 pt-6 flex flex-col flex-1">
