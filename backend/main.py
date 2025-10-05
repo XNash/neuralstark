@@ -570,4 +570,9 @@ async def upload_document(source_type: str = Form(...), file: UploadFile = File(
             shutil.copyfileobj(file.file, buffer)
         
         # Dispatch document processing (async if Celery available, sync otherwise)
-        dispat
+        dispatch_document_processing(file_path, "created")
+        
+        return {"status": "success", "filename": file.filename, "source_type": source_type}
+    except Exception as e:
+        print(f"Error uploading document: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
