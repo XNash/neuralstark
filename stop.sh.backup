@@ -2,7 +2,8 @@
 
 ###########################################
 # NeuralStark - Universal Stop Script
-# Version: 5.0 - Enhanced
+# Works in any standard Linux environment
+# Version: 4.1 - No sudo required
 ###########################################
 
 # Colors
@@ -137,7 +138,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         print_status info "Stopping Redis..."
         redis-cli shutdown 2>/dev/null
         sleep 1
-        if ! redis-cli ping &>/dev/null 2>&1; then
+        if ! redis-cli ping &>/dev/null; then
             print_status success "Redis stopped"
             ((stopped_count++))
         fi
@@ -190,7 +191,7 @@ else
     echo -e "${GREEN}✓${NC} Celery      - Stopped"
 fi
 
-if redis-cli ping &>/dev/null 2>&1; then
+if redis-cli ping &>/dev/null; then
     echo -e "${BLUE}ℹ${NC} Redis       - Running"
 else
     echo -e "${GREEN}✓${NC} Redis       - Stopped"
