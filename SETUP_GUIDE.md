@@ -37,7 +37,7 @@ You should see:
 - ✅ Celery workers (3 workers)
 
 ### Access the Application
-- **Frontend**: https://python-error-fix.preview.emergentagent.com
+- **Frontend**: https://light-dark-switch-3.preview.emergentagent.com
 - **Backend API**: http://localhost:8001/docs
 
 ---
