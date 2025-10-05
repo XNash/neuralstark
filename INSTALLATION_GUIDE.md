@@ -8,30 +8,35 @@ This guide ensures NeuralStark works correctly in any environment.
 
 ## Quick Start (Automated)
 
-### Step 1: Run Setup Script
-```bash
-chmod +x setup.sh
-./setup.sh
-```
+### One Command Does Everything!
 
-This will:
-- ✅ Create all required directories
-- ✅ Validate system prerequisites
-- ✅ Check dependencies
-- ✅ Verify permissions
-
-### Step 2: Start Application
 ```bash
 chmod +x run.sh
 ./run.sh
 ```
 
-The `run.sh` script will automatically:
-- Install Python dependencies
-- Install frontend dependencies
-- Install and start Redis (if missing)
-- Install and start MongoDB (if missing)
-- Start all services
+**That's it!** The `run.sh` script is now an all-in-one solution that handles:
+- ✅ Directory creation (chroma_db, logs, knowledge_base folders)
+- ✅ Virtual environment setup
+- ✅ System prerequisite validation (Python, Node.js)
+- ✅ Python dependency installation (from requirements.txt)
+- ✅ Frontend dependency installation (yarn/npm)
+- ✅ Redis installation and startup (if missing)
+- ✅ MongoDB installation and startup (if missing)
+- ✅ Celery worker startup
+- ✅ Backend (FastAPI) startup
+- ✅ Frontend (React/Vite) startup
+- ✅ Health checks and validation
+
+### Optional: Pre-Flight Validation
+
+If you want to check your environment before starting services:
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+This validates the environment but doesn't start services. However, **it's completely optional** because `run.sh` does everything!
 
 ---
 
