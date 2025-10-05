@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import { ScrollArea } from './ui/scroll-area';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card'; // Re-add this line
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Alert, AlertTitle, AlertDescription } from './ui/alert';
 import { apiClient } from '../lib/api';
 import { FileText, RefreshCw, Database, Search, AlertCircle, Trash2, CheckCircle } from 'lucide-react';
