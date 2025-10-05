@@ -12,17 +12,29 @@ function App() {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard />;
+        return (
+          <ErrorBoundary>
+            <Dashboard />
+          </ErrorBoundary>
+        );
       case 'chat':
         return (
-          <Chat />
+          <ErrorBoundary>
+            <Chat />
+          </ErrorBoundary>
         );
       case 'files':
         return (
-          <Files />
+          <ErrorBoundary>
+            <Files />
+          </ErrorBoundary>
         );
       default:
-        return <Dashboard />;
+        return (
+          <ErrorBoundary>
+            <Dashboard />
+          </ErrorBoundary>
+        );
     }
   };
 
