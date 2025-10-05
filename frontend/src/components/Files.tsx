@@ -370,4 +370,60 @@ export const Files = () => {
                 )}
                 {successMessage && (
                   <Alert variant="default">
+                    <CheckCircle className="h-4 w-4" />
+                    <AlertTitle>Success</AlertTitle>
+                    <AlertDescription>{successMessage}</AlertDescription>
+                  </Alert>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="advanced">
+            <Card className="mt-4">
+              <CardHeader>
+                <CardTitle>Paramètres Avancés</CardTitle>
+                <CardDescription>
+                  Utilisez ces paramètres avec prudence. Ils peuvent entraîner une perte de données.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col space-y-4">
+                <div className="p-4 border border-destructive/50 rounded-lg bg-destructive/5 text-destructive">
+                  <h4 className="font-semibold mb-2">Réinitialiser la Base de Connaissances</h4>
+                  <p className="text-sm mb-4">
+                    Cela supprimera tous les fichiers indexés et leurs embeddings. Cette action est irréversible.
+                  </p>
+                  <div className="flex space-x-4">
+                    <Button
+                      variant="destructive"
+                      onClick={() => handleResetKnowledgeBase('soft')}
+                      disabled={isResetting}
+                    >
+                      {isResetting ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : null}
+                      Soft Reset (Réindexer tous les fichiers)
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => handleResetKnowledgeBase('hard')}
+                      disabled={isResetting}
+                    >
+                      {isResetting ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : null}
+                      Réinitialisation Complète (Supprimer tous les fichiers et embeddings)
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    {showContentModal && (
+      <FileContentModal
+        showContentModal={showContentModal}
+        setShowContentModal={setShowContentModal}
+        documentContent={documentContent}
+      />
+    )}
+    </>
+  );
+};
                     <CheckCircl
