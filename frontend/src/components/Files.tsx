@@ -15,6 +15,10 @@ const FileContentModal = ({
   showContentModal,
   setShowContentModal,
   documentContent,
+}: {
+  showContentModal: boolean;
+  setShowContentModal: (open: boolean) => void;
+  documentContent: string | null;
 }) => {
   return (
     <Dialog open={showContentModal} onOpenChange={setShowContentModal}>
