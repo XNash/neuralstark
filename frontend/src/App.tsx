@@ -4,6 +4,7 @@ import { Dashboard } from './components/Dashboard';
 import { Chat } from './components/Chat';
 import { Files } from './components/Files';
 import { ScrollArea } from './components/ui/scroll-area';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'chat' | 'files'>('dashboard');
