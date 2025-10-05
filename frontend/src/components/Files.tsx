@@ -22,15 +22,15 @@ const FileContentModal = ({
 }) => {
   return (
     <Dialog open={showContentModal} onOpenChange={setShowContentModal}>
-      <DialogContent className="sm:max-w-[800px] h-[80vh] flex flex-col">
+      <DialogContent className="sm:max-w-[800px] h-[80vh] flex flex-col bg-background border-border">
         <DialogHeader>
-          <DialogTitle>Document Content</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-foreground">Document Content</DialogTitle>
+          <DialogDescription className="text-muted-foreground">
             Extracted text content of the selected document.
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="flex-1 p-4 border rounded-md bg-muted/20">
-          <p className="whitespace-pre-wrap text-sm">{documentContent}</p>
+        <ScrollArea className="flex-1 p-4 border border-border rounded-md bg-card">
+          <p className="whitespace-pre-wrap text-sm text-card-foreground">{documentContent}</p>
         </ScrollArea>
       </DialogContent>
     </Dialog>
