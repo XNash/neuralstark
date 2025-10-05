@@ -426,8 +426,22 @@ neuralstark/
 │
 ├── frontend/                  # React frontend
 │   ├── src/                   # Source code
+│   │   ├── components/        # React components
+│   │   │   ├── Dashboard.tsx
+│   │   │   ├── Chat.tsx
+│   │   │   ├── Files.tsx      # File management with type filtering
+│   │   │   ├── Sidebar.tsx    # Navigation with theme toggle
+│   │   │   ├── ThemeToggle.tsx # Theme switcher component
+│   │   │   └── ui/            # Reusable UI components
+│   │   ├── contexts/          # React contexts
+│   │   │   └── ThemeContext.tsx # Theme state management
+│   │   ├── lib/               # Utility libraries
+│   │   ├── App.tsx            # Main application component
+│   │   ├── main.tsx           # Application entry point
+│   │   └── index.css          # Global styles with theme variables
 │   ├── public/                # Static assets
 │   ├── package.json           # Node dependencies
+│   ├── tailwind.config.js     # Tailwind with dark mode support
 │   └── vite.config.ts         # Vite configuration
 │
 ├── logs/                      # Application logs (created on first run)
