@@ -1,4 +1,9 @@
 import os
+from pathlib import Path
+
+# Get project root directory (parent of backend directory)
+BACKEND_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = BACKEND_DIR.parent
 
 class Settings:
     PROJECT_NAME: str = "NeuralStark API"
@@ -9,9 +14,15 @@ class Settings:
     REDIS_PORT: int = int(os.getenv("REDIS_PORT", 6379))
     REDIS_DB: int = int(os.getenv("REDIS_DB", 0))
 
-    # Watchdog settings
-    INTERNAL_KNOWLEDGE_BASE_PATH: str = os.getenv("INTERNAL_KNOWLEDGE_BASE_PATH", "/app/backend/knowledge_base/internal")
-    EXTERNAL_KNOWLEDGE_BASE_PATH: str = os.getenv("EXTERNAL_KNOWLEDGE_BASE_PATH", "/app/backend/knowledge_base/external")
+    # Watchdog settings - Use relative paths from project root
+    INTERNAL_KNOWLEDGE_BASE_PATH: str = os.getenv(
+        "INTERNAL_KNOWLEDGE_BASE_PATH", 
+        str(BACKEND_DIR / "knowledge_base" / "internal")
+    )
+    EXTERNAL_KNOWLEDGE_BASE_PATH: str = os.getenv(
+        "EXTERNAL_KNOWLEDGE_BASE_PATH", 
+        str(BACKEND_DIR / "knowledge_base" / "external")
+    )
 
     # AI settings (for LLM chat model)
     LLM_MODEL: str = os.getenv("LLM_MODEL", "gemini-2.5-flash") # Default to a common chat model
@@ -22,8 +33,8 @@ class Settings:
     EMBEDDING_MODEL_NAME: str = os.getenv("EMBEDDING_MODEL_NAME", "all-MiniLM-L6-v2")
     EMBEDDING_API_KEY: str = os.getenv("EMBEDDING_API_KEY", "") # Not needed for local BGE-M3, but good for API-based embeddings
 
-    # ChromaDB settings
-    CHROMA_DB_PATH: str = os.getenv("CHROMA_DB_PATH", "/app/chroma_db")
+    # ChromaDB settings - Use relative path from project root
+    CHROMA_DB_PATH: str = os.getenv("CHROMA_DB_PATH", str(PROJECT_ROOT / "chroma_db"))
 
     # Canvas settings
     CANVAS_TEMPLATES_PATH: str = os.getenv("CANVAS_TEMPLATES_PATH", "canvas_templates.json")
