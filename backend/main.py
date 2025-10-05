@@ -473,7 +473,7 @@ async def get_document_content(file_path: str):
         logging.error(f"Error retrieving content for {file_path}: {e}")
         raise HTTPException(status_code=500, detail=f"Error retrieving content: {e}")
 
-@app.post("/documents/delete")
+@app.post("/api/documents/delete")
 async def delete_document(request: DeleteRequest):
     """Deletes a document from the knowledge base. This will also trigger its removal from the vector store."""
     # Basic security check: Ensure the file path is within the knowledge base directories
