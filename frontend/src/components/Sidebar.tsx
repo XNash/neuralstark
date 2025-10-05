@@ -1,14 +1,9 @@
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
-import { Separator } from './ui/separator';
 import {
   MessageSquare,
   FileText,
   Home,
-  Settings,
-  User,
-  BarChart3,
-  Database,
   Bot
 } from 'lucide-react';
 
