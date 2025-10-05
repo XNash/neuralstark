@@ -450,7 +450,7 @@ async def upload_document(source_type: str = Form(...), file: UploadFile = File(
         logging.error(f"Error uploading file {file.filename}: {e}")
         raise HTTPException(status_code=500, detail=f"Error uploading file: {e}")
 
-@app.get("/documents/content")
+@app.get("/api/documents/content")
 async def get_document_content(file_path: str):
     """Retrieves the extracted text content of a specific document from the knowledge base."""
     # Basic security check: Ensure the file path is within the knowledge base directories
