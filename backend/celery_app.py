@@ -123,6 +123,13 @@ def process_document_task(self, file_path: str, event_type: str):
             # Split text into chunks with improved parameters
             texts = text_splitter.split_text(extracted_text)
             
+            # Filter out empty or None chunks
+            texts = [text for text in texts if text and text.strip()]
+            
+            if not texts:
+                logging.warning(f"No valid text chunks after filtering empty content for {file_path}")
+                return {"status": "no_content", "file_path": file_path}
+            
             # Limit chunk size for very large documents to prevent memory issues
             if len(texts) > 1000:
                 logging.warning(f"Document {file_path} has {len(texts)} chunks. Processing in batches.")
