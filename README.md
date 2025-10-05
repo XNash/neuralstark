@@ -164,7 +164,7 @@ These are optional and can be installed later if needed.
 
 ## 🎯 Getting Started
 
-### Option 1: Quick Start (Recommended)
+### Quick Start (Recommended)
 
 1. **Clone the repository**
    ```bash
@@ -172,18 +172,33 @@ These are optional and can be installed later if needed.
    cd neuralstark
    ```
 
-2. **Start the application**
+2. **Install prerequisites** (if not already installed)
    ```bash
-   ./run.sh    # Linux/macOS
-   run.bat     # Windows
+   # Ubuntu/Debian
+   sudo apt-get install redis-server mongodb
+   
+   # macOS
+   brew install redis mongodb-community
    ```
 
-3. **Access the application**
+3. **Make scripts executable**
+   ```bash
+   chmod +x run.sh stop.sh
+   ```
+
+4. **Start the application**
+   ```bash
+   ./run.sh
+   ```
+   
+   Wait ~20-30 seconds for backend to load ML models.
+
+5. **Access the application**
    - Open http://localhost:3000 in your browser
 
-### Option 2: Manual Setup
+### Manual Setup
 
-If you prefer to start services individually:
+If you prefer to start services individually or need more control:
 
 #### Prerequisites
 Ensure the following are installed:
