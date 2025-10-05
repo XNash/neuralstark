@@ -56,6 +56,16 @@ tail -f logs/celery_worker.log
 
 ## ✨ Features
 
+### 🎨 User Interface
+- **Light/Dark Theme Toggle**: Seamlessly switch between light and dark modes with automatic theme persistence
+  - Theme preference saved in localStorage
+  - Auto-detects system theme preference on first visit
+  - Elegant Moon/Sun icon toggle in the sidebar
+- **File Type Filtering**: Smart file organization with category-based filtering
+  - Filter by "Tous" (All), "Documents", "Feuilles de calcul" (Spreadsheets), or "Images"
+  - Real-time count display for each file category
+  - Extension-based automatic categorization (PDF, DOCX, XLSX, PNG, etc.)
+
 ### 🤖 Intelligent AI Assistance (Xynorash)
 - **RAG-based Conversational AI**: Context-aware responses based on your internal and external documents
 - **Multilingual Support**: English and French language support
