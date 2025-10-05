@@ -54,7 +54,7 @@ const quickActions = [
   },
 ];
 
-export const Sidebar: React.FC<SidebarProps> = ({
+export const Sidebar = ({
   className,
   activeTab,
   onTabChange,
