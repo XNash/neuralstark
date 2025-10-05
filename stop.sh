@@ -3,7 +3,7 @@
 ###########################################
 # NeuralStark - Universal Stop Script
 # Works in any standard Linux environment
-# Version: 4.0
+# Version: 4.1 - No sudo required
 ###########################################
 
 # Colors
@@ -108,61 +108,63 @@ fi
 # Clean up PID file
 rm -f /tmp/celery_worker.pid 2>/dev/null
 
-###########################################
-# 4. Optional: Stop Redis
-###########################################
 echo ""
-read -p "Stop Redis? (y/N): " -n 1 -r
+echo "=========================================="
+
+###########################################
+# 4. Optional Services (with prompt)
+###########################################
+print_status info "The following services can continue running:"
+echo ""
+
+# Check Redis
+if redis-cli ping &>/dev/null; then
+    echo "  • Redis (port 6379) - used by Celery"
+fi
+
+# Check MongoDB
+if lsof -i:27017 &>/dev/null 2>&1 || netstat -tuln 2>/dev/null | grep -q ":27017 "; then
+    echo "  • MongoDB (port 27017) - database"
+fi
+
+echo ""
+read -p "Stop Redis and MongoDB? (y/N): " -n 1 -r
+echo ""
 echo ""
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
+    # Stop Redis
     if redis-cli ping &>/dev/null; then
+        print_status info "Stopping Redis..."
         redis-cli shutdown 2>/dev/null
         sleep 1
         if ! redis-cli ping &>/dev/null; then
             print_status success "Redis stopped"
             ((stopped_count++))
-        else
-            print_status warn "Redis may still be running"
         fi
-    else
-        print_status info "Redis not running"
     fi
-else
-    print_status info "Redis left running"
-fi
-
-###########################################
-# 5. Optional: Stop MongoDB
-###########################################
-read -p "Stop MongoDB? (y/N): " -n 1 -r
-echo ""
-
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    if lsof -i:27017 &>/dev/null; then
+    
+    # Stop MongoDB
+    if lsof -i:27017 &>/dev/null 2>&1 || netstat -tuln 2>/dev/null | grep -q ":27017 "; then
+        print_status info "Stopping MongoDB..."
         if command -v mongod &>/dev/null; then
             mongod --shutdown 2>/dev/null || pkill -f mongod 2>/dev/null
-            sleep 2
-            
-            if ! lsof -i:27017 &>/dev/null; then
-                print_status success "MongoDB stopped"
-                ((stopped_count++))
-            else
-                print_status warn "MongoDB may still be running"
-            fi
         else
             pkill -f mongod 2>/dev/null
-            print_status success "Attempted to stop MongoDB"
         fi
-    else
-        print_status info "MongoDB not running"
+        sleep 2
+        
+        if ! lsof -i:27017 &>/dev/null 2>&1 && ! netstat -tuln 2>/dev/null | grep -q ":27017 "; then
+            print_status success "MongoDB stopped"
+            ((stopped_count++))
+        fi
     fi
 else
-    print_status info "MongoDB left running"
+    print_status info "Keeping Redis and MongoDB running"
 fi
 
 ###########################################
-# 6. Verification
+# 5. Final Status
 ###########################################
 echo ""
 echo "=========================================="
@@ -195,7 +197,7 @@ else
     echo -e "${GREEN}✓${NC} Redis       - Stopped"
 fi
 
-if lsof -i:27017 &>/dev/null; then
+if lsof -i:27017 &>/dev/null 2>&1 || netstat -tuln 2>/dev/null | grep -q ":27017 "; then
     echo -e "${BLUE}ℹ${NC} MongoDB     - Running"
 else
     echo -e "${GREEN}✓${NC} MongoDB     - Stopped"
@@ -203,13 +205,14 @@ fi
 
 echo ""
 echo "=========================================="
+
 if [ "$stopped_count" -gt 0 ]; then
     print_status success "Stopped $stopped_count service(s)"
 else
-    print_status info "No services were stopped"
+    print_status info "No services were running"
 fi
+
 echo "=========================================="
 echo ""
-
-print_status info "To start all services: ./run.sh"
+print_status info "To start services: ./run.sh"
 echo ""

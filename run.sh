@@ -3,7 +3,7 @@
 ###########################################
 # NeuralStark - Universal Run Script
 # Works in any standard Linux environment
-# Version: 4.0
+# Version: 4.1 - No sudo required
 ###########################################
 
 # Colors
@@ -32,11 +32,15 @@ print_status() {
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
+# Create local logs directory
+LOG_DIR="$SCRIPT_DIR/logs"
+mkdir -p "$LOG_DIR"
+
 ###########################################
 # 1. Setup Directories
 ###########################################
 print_status info "Setting up directories..."
-mkdir -p backend/knowledge_base/internal backend/knowledge_base/external chroma_db /var/log 2>/dev/null
+mkdir -p backend/knowledge_base/internal backend/knowledge_base/external chroma_db 2>/dev/null
 print_status success "Directories ready"
 
 ###########################################
@@ -45,38 +49,42 @@ print_status success "Directories ready"
 print_status info "Checking prerequisites..."
 
 if ! command -v python3 &>/dev/null; then
-    print_status error "Python 3 not found"
+    print_status error "Python 3 not found. Please install Python 3."
     exit 1
 fi
 
 if ! command -v node &>/dev/null; then
-    print_status error "Node.js not found"
+    print_status error "Node.js not found. Please install Node.js."
     exit 1
 fi
 
-print_status success "Prerequisites OK"
+print_status success "Prerequisites OK (Python 3, Node.js)"
 
 ###########################################
 # 3. Start MongoDB
 ###########################################
 print_status info "Starting MongoDB..."
 
-if lsof -i:27017 &>/dev/null; then
+# Check if port is in use
+if lsof -i:27017 &>/dev/null 2>&1 || netstat -tuln 2>/dev/null | grep -q ":27017 "; then
     print_status success "MongoDB already running on port 27017"
-else
-    if command -v mongod &>/dev/null; then
+elif command -v mongod &>/dev/null; then
+    # Try to start MongoDB
+    if [ -w /var/log ]; then
         mongod --fork --logpath /var/log/mongodb.log --bind_ip_all 2>/dev/null || \
-        nohup mongod --bind_ip_all > /var/log/mongodb.log 2>&1 &
-        sleep 3
-        
-        if lsof -i:27017 &>/dev/null; then
-            print_status success "MongoDB started on port 27017"
-        else
-            print_status warn "MongoDB may not have started (check /var/log/mongodb.log)"
-        fi
+        nohup mongod --bind_ip_all > "$LOG_DIR/mongodb.log" 2>&1 &
     else
-        print_status warn "MongoDB not installed - skipping"
+        nohup mongod --bind_ip_all > "$LOG_DIR/mongodb.log" 2>&1 &
     fi
+    sleep 3
+    
+    if lsof -i:27017 &>/dev/null 2>&1 || netstat -tuln 2>/dev/null | grep -q ":27017 "; then
+        print_status success "MongoDB started on port 27017"
+    else
+        print_status warn "MongoDB may not have started (check $LOG_DIR/mongodb.log)"
+    fi
+else
+    print_status warn "MongoDB not installed - application may not work correctly"
 fi
 
 ###########################################
@@ -87,17 +95,16 @@ print_status info "Starting Redis..."
 if redis-cli ping &>/dev/null; then
     print_status success "Redis already running on port 6379"
 else
-    # Install if needed
     if ! command -v redis-server &>/dev/null; then
-        print_status warn "Redis not found, installing..."
-        if command -v apt-get &>/dev/null; then
-            apt-get update -qq && apt-get install -y redis-server -qq 2>/dev/null
-        elif command -v yum &>/dev/null; then
-            yum install -y redis -q 2>/dev/null
-        fi
+        print_status error "Redis not found. Please install Redis:"
+        print_status info "  Ubuntu/Debian: sudo apt-get install redis-server"
+        print_status info "  CentOS/RHEL:   sudo yum install redis"
+        print_status info "  macOS:         brew install redis"
+        exit 1
     fi
     
-    redis-server --daemonize yes --bind 127.0.0.1 2>/dev/null
+    redis-server --daemonize yes --bind 127.0.0.1 2>/dev/null || \
+    redis-server --daemonize yes 2>/dev/null
     sleep 2
     
     if redis-cli ping &>/dev/null; then
@@ -121,19 +128,35 @@ sleep 1
 # Set Python path
 export PYTHONPATH="$SCRIPT_DIR:$PYTHONPATH"
 
+# Find Python executable
+if [ -d "$SCRIPT_DIR/.venv" ]; then
+    PYTHON_BIN="$SCRIPT_DIR/.venv/bin/python"
+    CELERY_BIN="$SCRIPT_DIR/.venv/bin/celery"
+elif [ -d "/root/.venv" ]; then
+    PYTHON_BIN="/root/.venv/bin/python"
+    CELERY_BIN="/root/.venv/bin/celery"
+elif [ -d "$SCRIPT_DIR/venv" ]; then
+    PYTHON_BIN="$SCRIPT_DIR/venv/bin/python"
+    CELERY_BIN="$SCRIPT_DIR/venv/bin/celery"
+else
+    PYTHON_BIN="python3"
+    CELERY_BIN="celery"
+fi
+
 # Start Celery
-nohup celery -A backend.celery_app worker \
+nohup $CELERY_BIN -A backend.celery_app worker \
     --loglevel=info \
     --concurrency=2 \
     --max-tasks-per-child=50 \
-    > /var/log/celery_worker.log 2>&1 &
+    > "$LOG_DIR/celery_worker.log" 2>&1 &
 
 sleep 4
 
 if pgrep -f "celery.*worker" &>/dev/null; then
     print_status success "Celery worker started"
 else
-    print_status error "Celery failed to start (check /var/log/celery_worker.log)"
+    print_status error "Celery failed to start"
+    print_status info "Check logs: tail -f $LOG_DIR/celery_worker.log"
     exit 1
 fi
 
@@ -148,15 +171,14 @@ sleep 1
 
 cd "$SCRIPT_DIR/backend"
 
-# Check if virtual environment exists
-if [ -d "/root/.venv" ]; then
-    PYTHON_BIN="/root/.venv/bin/python"
+# Find uvicorn
+if [ -d "$SCRIPT_DIR/.venv" ]; then
+    UVICORN_BIN="$SCRIPT_DIR/.venv/bin/uvicorn"
+elif [ -d "/root/.venv" ]; then
     UVICORN_BIN="/root/.venv/bin/uvicorn"
-elif [ -d "venv" ]; then
-    PYTHON_BIN="venv/bin/python"
-    UVICORN_BIN="venv/bin/uvicorn"
+elif [ -d "$SCRIPT_DIR/venv" ]; then
+    UVICORN_BIN="$SCRIPT_DIR/venv/bin/uvicorn"
 else
-    PYTHON_BIN="python3"
     UVICORN_BIN="uvicorn"
 fi
 
@@ -165,14 +187,15 @@ nohup $UVICORN_BIN server:app \
     --host 0.0.0.0 \
     --port 8001 \
     --reload \
-    > /var/log/backend.log 2>&1 &
+    > "$LOG_DIR/backend.log" 2>&1 &
 
 sleep 4
 
-if lsof -i:8001 &>/dev/null; then
+if lsof -i:8001 &>/dev/null 2>&1 || netstat -tuln 2>/dev/null | grep -q ":8001 "; then
     print_status success "Backend started on port 8001"
 else
-    print_status error "Backend failed to start (check /var/log/backend.log)"
+    print_status error "Backend failed to start"
+    print_status info "Check logs: tail -f $LOG_DIR/backend.log"
     exit 1
 fi
 
@@ -190,24 +213,29 @@ sleep 1
 
 # Check if node_modules exists
 if [ ! -d "node_modules" ]; then
-    print_status warn "Installing frontend dependencies..."
+    print_status warn "Installing frontend dependencies (this may take a few minutes)..."
     if command -v yarn &>/dev/null; then
-        yarn install --silent
+        yarn install
     else
-        npm install --silent
+        npm install
     fi
 fi
 
 # Start frontend
-nohup yarn start > /var/log/frontend.log 2>&1 &
+if command -v yarn &>/dev/null; then
+    nohup yarn start > "$LOG_DIR/frontend.log" 2>&1 &
+else
+    nohup npm start > "$LOG_DIR/frontend.log" 2>&1 &
+fi
 
 print_status info "Waiting for frontend to start..."
 sleep 8
 
-if lsof -i:3000 &>/dev/null; then
+if lsof -i:3000 &>/dev/null 2>&1 || netstat -tuln 2>/dev/null | grep -q ":3000 "; then
     print_status success "Frontend started on port 3000"
 else
-    print_status error "Frontend failed to start (check /var/log/frontend.log)"
+    print_status warn "Frontend may not have started"
+    print_status info "Check logs: tail -f $LOG_DIR/frontend.log"
 fi
 
 ###########################################
@@ -224,7 +252,7 @@ echo ""
 all_ok=true
 
 # MongoDB
-if lsof -i:27017 &>/dev/null; then
+if lsof -i:27017 &>/dev/null 2>&1 || netstat -tuln 2>/dev/null | grep -q ":27017 "; then
     echo -e "${GREEN}✓${NC} MongoDB     - Running on port 27017"
 else
     echo -e "${YELLOW}⚠${NC} MongoDB     - Not running"
@@ -248,7 +276,7 @@ fi
 
 # Backend
 sleep 2
-if lsof -i:8001 &>/dev/null; then
+if lsof -i:8001 &>/dev/null 2>&1 || netstat -tuln 2>/dev/null | grep -q ":8001 "; then
     if curl -s http://localhost:8001/health &>/dev/null; then
         echo -e "${GREEN}✓${NC} Backend     - Running on port 8001 (healthy)"
     else
@@ -260,7 +288,7 @@ else
 fi
 
 # Frontend
-if lsof -i:3000 &>/dev/null; then
+if lsof -i:3000 &>/dev/null 2>&1 || netstat -tuln 2>/dev/null | grep -q ":3000 "; then
     echo -e "${GREEN}✓${NC} Frontend    - Running on port 3000"
 else
     echo -e "${RED}✗${NC} Frontend    - Not running"
@@ -273,20 +301,19 @@ echo "=========================================="
 if [ "$all_ok" = true ]; then
     echo -e "${GREEN}✓ All services running!${NC}"
     echo ""
-    print_status info "🌐 Frontend:  http://localhost:3000"
-    print_status info "🔌 Backend:   http://localhost:8001"
-    print_status info "📚 API Docs:  http://localhost:8001/docs"
+    print_status info "🌐 Application: http://localhost:3000"
+    print_status info "🔌 Backend API: http://localhost:8001"
+    print_status info "📚 API Docs:    http://localhost:8001/docs"
     echo ""
-    print_status info "To stop all services: ./stop.sh"
+    print_status info "📁 Logs directory: $LOG_DIR"
+    print_status info "🛑 To stop: ./stop.sh"
 else
     echo -e "${YELLOW}⚠ Some services failed${NC}"
     echo ""
-    print_status info "Check logs in /var/log/"
-    echo ""
-    print_status info "Logs:"
-    print_status info "  Backend:  tail -f /var/log/backend.log"
-    print_status info "  Frontend: tail -f /var/log/frontend.log"
-    print_status info "  Celery:   tail -f /var/log/celery_worker.log"
+    print_status info "Check logs:"
+    print_status info "  Backend:  tail -f $LOG_DIR/backend.log"
+    print_status info "  Frontend: tail -f $LOG_DIR/frontend.log"
+    print_status info "  Celery:   tail -f $LOG_DIR/celery_worker.log"
 fi
 
 echo "=========================================="
