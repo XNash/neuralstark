@@ -2,6 +2,8 @@
 
 NeuralStark is a multi-platform AI assistant powered by **Xynorash**, an AI agent trained by NeuralStark to help professionals with their firm, societies, or work data. Xynorash provides intelligent assistance, manages knowledge bases, processes documents, and generates dynamic data visualizations.
 
+> **⚡ NEW in v6.0:** One-command setup! Just run `./run.sh` and everything is handled automatically - setup, installation, and startup. No manual steps needed!
+
 ## 🚀 Quick Start
 
 ### One-Command Setup & Start
