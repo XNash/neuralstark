@@ -380,8 +380,8 @@ tail -f /var/log/celery_worker.log
 ## 📚 Project Structure
 
 ```
-/app/
-├── backend/                    # Backend API (renamed from neuralstark/)
+neuralstark/
+├── backend/                    # Backend API
 │   ├── __init__.py            # Package initialization
 │   ├── server.py              # Uvicorn entry point
 │   ├── main.py                # FastAPI application
@@ -390,6 +390,7 @@ tail -f /var/log/celery_worker.log
 │   ├── celery_app.py          # Celery worker configuration
 │   ├── watcher.py             # File system watcher
 │   ├── requirements.txt       # Python dependencies
+│   ├── canvas_templates.json  # Visualization templates
 │   └── knowledge_base/
 │       ├── internal/          # Internal documents
 │       └── external/          # External documents
@@ -400,19 +401,22 @@ tail -f /var/log/celery_worker.log
 │   ├── package.json           # Node dependencies
 │   └── vite.config.ts         # Vite configuration
 │
+├── logs/                      # Application logs (created on first run)
+│   ├── backend.log
+│   ├── frontend.log
+│   ├── celery_worker.log
+│   └── mongodb.log
+│
 ├── chroma_db/                 # Vector database storage
 ├── scripts/                   # Utility scripts
 │
-├── run.sh                     # Linux/macOS startup script
-├── run.bat                    # Windows startup script
-├── stop.sh                    # Linux/macOS stop script
-├── stop.bat                   # Windows stop script
+├── run.sh                     # Universal startup script (Linux/macOS)
+├── stop.sh                    # Universal stop script (Linux/macOS)
 │
 ├── README.md                  # This file
-├── RUNNING_THE_APP.md         # Detailed running guide
-├── STARTUP_SCRIPTS_README.md  # Quick reference
-├── CHANGES.md                 # Technical changes
-└── IMPLEMENTATION_COMPLETE.md # Implementation details
+├── QUICK_START.md             # Quick start guide
+├── DEPLOYMENT_GUIDE.md        # Complete deployment guide
+└── canvas_templates.json      # Visualization templates
 ```
 
 ---
