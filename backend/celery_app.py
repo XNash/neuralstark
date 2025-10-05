@@ -162,3 +162,100 @@ def process_document_task(self, file_path: str, event_type: str):
     except Exception as e:
         logging.error(f"Error processing {file_path}: {e}")
         raise self.retry(exc=e)
+
+
+
+# Synchronous fallback function for when Celery/Redis is not available
+def process_document_sync(file_path: str, event_type: str):
+    """Process document synchronously without Celery (fallback for when Redis is unavailable)."""
+    print(f"[SYNC] Processing document: {file_path} (Event: {event_type})")
+    
+    try:
+        # Initialize ChromaDB client
+        embeddings = get_embeddings()
+        text_splitter = get_text_splitter()
+        vector_store = Chroma(persist_directory=settings.CHROMA_DB_PATH, embedding_function=embeddings)
+
+        # Normalize file_path for consistent ID generation
+        normalized_file_path = os.path.abspath(file_path)
+
+        # Determine if the file is internal or external
+        source_type = "unknown"
+        if normalized_file_path.startswith(os.path.abspath(settings.INTERNAL_KNOWLEDGE_BASE_PATH)):
+            source_type = "internal"
+        elif normalized_file_path.startswith(os.path.abspath(settings.EXTERNAL_KNOWLEDGE_BASE_PATH)):
+            source_type = "external"
+
+        if event_type == "deleted":
+            print(f"[SYNC] Handling deletion for {file_path}. Removing from knowledge base.")
+            try:
+                vector_store.delete(where={"source": normalized_file_path})
+                print(f"[SYNC] Successfully removed {file_path} from ChromaDB.")
+                return {"status": "deleted", "file_path": file_path}
+            except Exception as e:
+                logging.error(f"[SYNC] Error during deletion for {file_path}: {e}")
+                return {"status": "error", "file_path": file_path, "error": str(e)}
+
+        # For 'created' or 'modified' events
+        start_time = time.time()
+        extracted_text = parse_document(file_path)
+        parsing_time = time.time() - start_time
+        logging.info(f"[SYNC] Document parsing for {file_path} took {parsing_time:.4f} seconds.")
+
+        if extracted_text:
+            print(f"[SYNC] Successfully extracted text from {file_path}. Length: {len(extracted_text)} characters.")
+            
+            # If modified, delete existing chunks for this source first
+            if event_type == "modified":
+                print(f"[SYNC] Handling modification for {file_path}. Deleting old chunks from ChromaDB.")
+                try:
+                    vector_store.delete(where={"source": normalized_file_path})
+                    print(f"[SYNC] Successfully deleted old chunks for {file_path}.")
+                except Exception as e:
+                    logging.warning(f"[SYNC] Error deleting old chunks for {file_path}: {e}")
+
+            # Split text into chunks
+            texts = text_splitter.split_text(extracted_text)
+            
+            # Limit chunk size for very large documents
+            if len(texts) > 1000:
+                logging.warning(f"[SYNC] Document {file_path} has {len(texts)} chunks. Processing in batches.")
+                batch_size = 100
+                for i in range(0, len(texts), batch_size):
+                    batch_texts = texts[i:i+batch_size]
+                    metadatas = [{
+                        "source": normalized_file_path,
+                        "file_name": os.path.basename(file_path),
+                        "event_type": event_type,
+                        "timestamp": os.path.getmtime(file_path),
+                        "source_type": source_type,
+                        "batch": i // batch_size
+                    } for _ in batch_texts]
+                    
+                    vector_store.add_texts(texts=batch_texts, metadatas=metadatas)
+                    logging.info(f"[SYNC] Indexed batch {i // batch_size + 1} with {len(batch_texts)} chunks")
+            else:
+                # Prepare metadata for each chunk
+                metadatas = [{
+                    "source": normalized_file_path,
+                    "file_name": os.path.basename(file_path),
+                    "event_type": event_type,
+                    "timestamp": os.path.getmtime(file_path),
+                    "source_type": source_type
+                } for _ in texts]
+
+                # Add documents to ChromaDB
+                start_time = time.time()
+                vector_store.add_texts(texts=texts, metadatas=metadatas)
+                indexing_time = time.time() - start_time
+                logging.info(f"[SYNC] Indexing {len(texts)} chunks from {file_path} took {indexing_time:.4f} seconds.")
+            
+            print(f"[SYNC] Successfully indexed {len(texts)} chunks from {file_path} into ChromaDB.")
+            return {"status": "indexed", "file_path": file_path, "chunks_indexed": len(texts)}
+        else:
+            print(f"[SYNC] Could not extract text from {file_path}.")
+            return {"status": "failed_extraction", "file_path": file_path}
+            
+    except Exception as e:
+        logging.error(f"[SYNC] Error processing {file_path}: {e}")
+        return {"status": "error", "file_path": file_path, "error": str(e)}
