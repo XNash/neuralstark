@@ -13,6 +13,10 @@ export default defineConfig({
   server: {
     host: '0.0.0.0', // Allow access from any host
     port: 3000,
+    strictPort: false,
+    hmr: {
+      clientPort: 3000,
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:8001',
@@ -20,5 +24,10 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: 3000,
+    strictPort: false,
   },
 })
