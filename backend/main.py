@@ -24,6 +24,9 @@ from langchain.agents import AgentExecutor, create_react_agent
 from langchain.tools import Tool
 from langchain import hub
 
+# Cross-encoder for reranking
+from sentence_transformers import CrossEncoder
+
 # ReportLab imports for PDF generation
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
