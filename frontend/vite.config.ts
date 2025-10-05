@@ -14,6 +14,11 @@ export default defineConfig({
     host: '0.0.0.0', // Allow access from any host
     port: 3000,
     strictPort: false,
+    allowedHosts: [
+      'localhost',
+      '.emergentagent.com',
+      '.preview.emergentagent.com',
+    ],
     hmr: {
       clientPort: 3000,
     },
