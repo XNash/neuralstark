@@ -40,7 +40,7 @@ mkdir -p "$LOG_DIR"
 # 1. Setup Directories
 ###########################################
 print_status info "Setting up directories..."
-mkdir -p backend/knowledge_base/internal backend/knowledge_base/external chroma_db 2>/dev/null
+mkdir -p backend/knowledge_base/internal backend/knowledge_base/external chroma_db logs 2>/dev/null
 print_status success "Directories ready"
 
 ###########################################
