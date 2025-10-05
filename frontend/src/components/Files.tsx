@@ -39,7 +39,7 @@ const FileContentModal = ({
   );
 };
 
-export const Files: React.FC = () => {
+export const Files = () => {
   const [documents, setDocuments] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
