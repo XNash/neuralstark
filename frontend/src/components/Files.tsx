@@ -37,6 +37,8 @@ const FileContentModal = ({
   );
 };
 
+type FileType = 'tous' | 'documents' | 'feuilles de calcul' | 'images';
+
 export const Files = () => {
   const [documents, setDocuments] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,6 +52,7 @@ export const Files = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false); // State for delete loading
   const [isResetting, setIsResetting] = useState(false); // State for reset loading
+  const [activeFileType, setActiveFileType] = useState<FileType>('tous'); // State for file type filter
 
   const fetchDocuments = async () => {
     setIsLoading(true);
@@ -137,6 +140,43 @@ export const Files = () => {
     }
   };
 
+  // Helper function to get file extension
+  const getFileExtension = (filename: string): string => {
+    const parts = filename.split('.');
+    return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : '';
+  };
+
+  // Helper function to categorize file by type
+  const categorizeFile = (filename: string): FileType => {
+    const ext = getFileExtension(filename);
+    
+    // Documents
+    const documentExts = ['pdf', 'doc', 'docx', 'txt', 'md', 'rtf', 'odt'];
+    if (documentExts.includes(ext)) return 'documents';
+    
+    // Spreadsheets
+    const spreadsheetExts = ['xls', 'xlsx', 'csv', 'ods'];
+    if (spreadsheetExts.includes(ext)) return 'feuilles de calcul';
+    
+    // Images
+    const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'ico'];
+    if (imageExts.includes(ext)) return 'images';
+    
+    return 'tous';
+  };
+
+  // Filter documents based on selected file type
+  const filteredDocuments = documents.filter((doc) => {
+    if (activeFileType === 'tous') return true;
+    return categorizeFile(doc) === activeFileType;
+  });
+
+  // Count documents by type
+  const getTypeCount = (type: FileType): number => {
+    if (type === 'tous') return documents.length;
+    return documents.filter(doc => categorizeFile(doc) === type).length;
+  };
+
   return (
     <>
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -155,21 +195,41 @@ export const Files = () => {
           </TabsList>
         </div>
         <TabsContent value="list">
-          <div className="flex items-center space-x-2 mt-4">
-            <Badge variant="secondary" className="flex items-center gap-1">
-              <FileText className="h-3 w-3" />
-              {documents.length} indexed
-            </Badge>
-            <Button
-              onClick={fetchDocuments}
-              disabled={isLoading}
-              variant="outline"
-              size="sm"
-            >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
+          <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center space-x-2">
+              <Badge variant="secondary" className="flex items-center gap-1">
+                <FileText className="h-3 w-3" />
+                {documents.length} indexed
+              </Badge>
+              <Button
+                onClick={fetchDocuments}
+                disabled={isLoading}
+                variant="outline"
+                size="sm"
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+            </div>
           </div>
+
+          {/* File Type Filter Tabs */}
+          <Tabs value={activeFileType} onValueChange={(value) => setActiveFileType(value as FileType)} className="w-full mt-4">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="tous">
+                Tous ({getTypeCount('tous')})
+              </TabsTrigger>
+              <TabsTrigger value="documents">
+                Documents ({getTypeCount('documents')})
+              </TabsTrigger>
+              <TabsTrigger value="feuilles de calcul">
+                Feuilles de calcul ({getTypeCount('feuilles de calcul')})
+              </TabsTrigger>
+              <TabsTrigger value="images">
+                Images ({getTypeCount('images')})
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
             {uploadError && (
               <div className="flex items-center gap-3 p-4 border border-destructive/50 rounded-lg bg-destructive/5 text-destructive mb-4 mt-4">
                 <AlertCircle className="h-5 w-5 flex-shrink-0" />
@@ -213,10 +273,18 @@ export const Files = () => {
                   Refresh List
                 </Button>
               </div>
+            ) : filteredDocuments.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center border border-dashed rounded-lg p-8 mt-4">
+                <FileText className="h-16 w-16 text-muted-foreground mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Aucun fichier de ce type</h3>
+                <p className="text-muted-foreground max-w-sm mb-4">
+                  Aucun fichier ne correspond au type sélectionné.
+                </p>
+              </div>
             ) : (
               <ScrollArea className="flex-1 mt-4">
             <div className="space-y-3">
-              {documents.map((doc, index) => (
+              {filteredDocuments.map((doc, index) => (
                 <div
                   key={index}
                   className="flex items-center gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
@@ -302,59 +370,4 @@ export const Files = () => {
                 )}
                 {successMessage && (
                   <Alert variant="default">
-                    <CheckCircle className="h-4 w-4" />
-                    <AlertTitle>Success</AlertTitle>
-                    <AlertDescription>{successMessage}</AlertDescription>
-                  </Alert>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="advanced">
-            <Card className="mt-4">
-              <CardHeader>
-                <CardTitle>Paramètres Avancés</CardTitle>
-                <CardDescription>
-                  Utilisez ces paramètres avec prudence. Ils peuvent entraîner une perte de données.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-col space-y-4">
-                <div className="p-4 border border-destructive/50 rounded-lg bg-destructive/5 text-destructive">
-                  <h4 className="font-semibold mb-2">Réinitialiser la Base de Connaissances</h4>
-                  <p className="text-sm mb-4">
-                    Cela supprimera tous les fichiers indexés et leurs embeddings. Cette action est irréversible.
-                  </p>
-                  <div className="flex space-x-4">
-                    <Button
-                      variant="destructive"
-                      onClick={() => handleResetKnowledgeBase('soft')}
-                      disabled={isResetting}
-                    >
-                      {isResetting ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : null}
-                      Soft Reset (Réindexer tous les fichiers)
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={() => handleResetKnowledgeBase('hard')}
-                      disabled={isResetting}
-                    >
-                      {isResetting ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : null}
-                      Réinitialisation Complète (Supprimer tous les fichiers et embeddings)
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
-    {showContentModal && (
-      <FileContentModal
-        showContentModal={showContentModal}
-        setShowContentModal={setShowContentModal}
-        documentContent={documentContent}
-      />
-    )}
-    </>
-  );
-};
+                    <CheckCircl
