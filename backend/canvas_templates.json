@@ -1,0 +1,661 @@
+{
+  "visualization_formats": {
+    
+    "line_chart": {
+      "type": "line_chart",
+      "title": "Évolution du CA Trimestriel",
+      "config": {
+        "width": 800,
+        "height": 400,
+        "responsive": true,
+        "legend": true,
+        "grid": true,
+        "animations": true
+      },
+      "axes": {
+        "x": {
+          "label": "Période",
+          "type": "datetime",
+          "format": "%Y-Q%q"
+        },
+        "y": {
+          "label": "Chiffre d'affaires (€)",
+          "type": "numeric",
+          "format": "currency"
+        }
+      },
+      "data": [
+        {
+          "series": "CA Réalisé",
+          "color": "#2E7D32",
+          "points": [
+            {"x": "2024-Q1", "y": 1250000},
+            {"x": "2024-Q2", "y": 1380000},
+            {"x": "2024-Q3", "y": 1420000},
+            {"x": "2024-Q4", "y": 1650000}
+          ]
+        },
+        {
+          "series": "CA Prévu",
+          "color": "#1976D2",
+          "style": "dashed",
+          "points": [
+            {"x": "2024-Q1", "y": 1200000},
+            {"x": "2024-Q2", "y": 1350000},
+            {"x": "2024-Q3", "y": 1500000},
+            {"x": "2024-Q4", "y": 1600000}
+          ]
+        }
+      ]
+    },
+
+    "bar_chart": {
+      "type": "bar_chart",
+      "title": "Performance des Équipes Commerciales",
+      "orientation": "vertical",
+      "config": {
+        "width": 600,
+        "height": 400,
+        "spacing": 0.1,
+        "show_values": true,
+        "sort": "desc"
+      },
+      "axes": {
+        "x": {
+          "label": "Équipes",
+          "type": "category"
+        },
+        "y": {
+          "label": "Ventes (K€)",
+          "type": "numeric",
+          "format": "number"
+        }
+      },
+      "data": [
+        {"category": "Équipe Nord", "value": 450, "color": "#FF6B6B"},
+        {"category": "Équipe Sud", "value": 380, "color": "#4ECDC4"},
+        {"category": "Équipe Est", "value": 520, "color": "#45B7D1"},
+        {"category": "Équipe Ouest", "value": 290, "color": "#96CEB4"},
+        {"category": "Équipe Centre", "value": 410, "color": "#FECA57"}
+      ]
+    },
+
+    "pie_chart": {
+      "type": "pie_chart",
+      "title": "Répartition du Budget Marketing",
+      "config": {
+        "width": 500,
+        "height": 500,
+        "donut": false,
+        "show_percentages": true,
+        "show_legends": true,
+        "inner_radius": 0
+      },
+      "data": [
+        {"label": "Digital", "value": 45, "color": "#FF6B6B"},
+        {"label": "Print", "value": 20, "color": "#4ECDC4"},
+        {"label": "Événementiel", "value": 15, "color": "#45B7D1"},
+        {"label": "Radio/TV", "value": 12, "color": "#96CEB4"},
+        {"label": "Autres", "value": 8, "color": "#FECA57"}
+      ]
+    },
+
+    "donut_chart": {
+      "type": "donut_chart",
+      "title": "Satisfaction Client par Segment",
+      "config": {
+        "width": 400,
+        "height": 400,
+        "inner_radius": 0.5,
+        "show_percentages": true,
+        "center_text": "Satisfaction Globale: 87%"
+      },
+      "data": [
+        {"label": "Très satisfait", "value": 42, "color": "#4CAF50"},
+        {"label": "Satisfait", "value": 35, "color": "#8BC34A"},
+        {"label": "Neutre", "value": 15, "color": "#FFC107"},
+        {"label": "Insatisfait", "value": 6, "color": "#FF9800"},
+        {"label": "Très insatisfait", "value": 2, "color": "#F44336"}
+      ]
+    },
+
+    "area_chart": {
+      "type": "area_chart",
+      "title": "Évolution des Revenus par Produit",
+      "config": {
+        "width": 800,
+        "height": 400,
+        "stacked": true,
+        "fill_opacity": 0.7
+      },
+      "axes": {
+        "x": {
+          "label": "Mois",
+          "type": "datetime",
+          "format": "%B %Y"
+        },
+        "y": {
+          "label": "Revenus (€)",
+          "type": "numeric",
+          "format": "currency"
+        }
+      },
+      "data": [
+        {
+          "series": "Produit A",
+          "color": "#2196F3",
+          "points": [
+            {"x": "2024-01", "y": 50000},
+            {"x": "2024-02", "y": 55000},
+            {"x": "2024-03", "y": 52000},
+            {"x": "2024-04", "y": 58000}
+          ]
+        },
+        {
+          "series": "Produit B",
+          "color": "#4CAF50",
+          "points": [
+            {"x": "2024-01", "y": 30000},
+            {"x": "2024-02", "y": 35000},
+            {"x": "2024-03", "y": 40000},
+            {"x": "2024-04", "y": 42000}
+          ]
+        }
+      ]
+    },
+
+    "scatter_plot": {
+      "type": "scatter_plot",
+      "title": "Relation Prix vs Performance",
+      "config": {
+        "width": 600,
+        "height": 500,
+        "bubble_size_field": "market_share",
+        "show_trend_line": true
+      },
+      "axes": {
+        "x": {
+          "label": "Prix (€)",
+          "type": "numeric",
+          "scale": "linear"
+        },
+        "y": {
+          "label": "Score Performance",
+          "type": "numeric",
+          "scale": "linear"
+        }
+      },
+      "data": [
+        {"x": 150, "y": 85, "label": "Produit A", "market_share": 25, "color": "#FF6B6B"},
+        {"x": 200, "y": 92, "label": "Produit B", "market_share": 18, "color": "#4ECDC4"},
+        {"x": 120, "y": 78, "label": "Produit C", "market_share": 12, "color": "#45B7D1"},
+        {"x": 300, "y": 95, "label": "Produit D", "market_share": 30, "color": "#96CEB4"}
+      ]
+    },
+
+    "heatmap": {
+      "type": "heatmap",
+      "title": "Performance Commerciale par Région/Mois",
+      "config": {
+        "width": 800,
+        "height": 400,
+        "color_scheme": "RdYlGn",
+        "show_values": true
+      },
+      "axes": {
+        "x": {
+          "label": "Mois",
+          "categories": ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun"]
+        },
+        "y": {
+          "label": "Régions",
+          "categories": ["Nord", "Sud", "Est", "Ouest"]
+        }
+      },
+      "data": [
+        {"x": 0, "y": 0, "value": 85, "label": "Jan-Nord"},
+        {"x": 1, "y": 0, "value": 92, "label": "Fév-Nord"},
+        {"x": 2, "y": 0, "value": 78, "label": "Mar-Nord"},
+        {"x": 0, "y": 1, "value": 65, "label": "Jan-Sud"},
+        {"x": 1, "y": 1, "value": 88, "label": "Fév-Sud"},
+        {"x": 2, "y": 1, "value": 95, "label": "Mar-Sud"}
+      ],
+      "color_scale": {
+        "min": 0,
+        "max": 100,
+        "colors": ["#FF4444", "#FFAA00", "#44FF44"]
+      }
+    },
+
+    "gauge_chart": {
+      "type": "gauge_chart",
+      "title": "Taux de Conversion",
+      "config": {
+        "width": 400,
+        "height": 300,
+        "min_value": 0,
+        "max_value": 100,
+        "target_value": 75,
+        "show_needle": true
+      },
+      "data": {
+        "current_value": 68.5,
+        "target": 75,
+        "zones": [
+          {"min": 0, "max": 40, "color": "#F44336", "label": "Critique"},
+          {"min": 40, "max": 70, "color": "#FF9800", "label": "Attention"},
+          {"min": 70, "max": 100, "color": "#4CAF50", "label": "Excellent"}
+        ]
+      }
+    },
+
+    "waterfall_chart": {
+      "type": "waterfall_chart",
+      "title": "Évolution du Budget Q4",
+      "config": {
+        "width": 700,
+        "height": 400,
+        "show_connectors": true
+      },
+      "data": [
+        {"label": "Budget Initial", "value": 100000, "type": "initial", "color": "#2196F3"},
+        {"label": "Ventes", "value": 45000, "type": "positive", "color": "#4CAF50"},
+        {"label": "Marketing", "value": -15000, "type": "negative", "color": "#F44336"},
+        {"label": "Operations", "value": -8000, "type": "negative", "color": "#F44336"},
+        {"label": "Autres revenus", "value": 3000, "type": "positive", "color": "#4CAF50"},
+        {"label": "Budget Final", "value": 125000, "type": "final", "color": "#2196F3"}
+      ]
+    },
+
+    "funnel_chart": {
+      "type": "funnel_chart",
+      "title": "Tunnel de Conversion Ventes",
+      "config": {
+        "width": 500,
+        "height": 600,
+        "show_percentages": true,
+        "show_values": true
+      },
+      "data": [
+        {"stage": "Visiteurs", "value": 10000, "color": "#2196F3"},
+        {"stage": "Leads", "value": 2500, "color": "#4CAF50"},
+        {"stage": "Qualifiés", "value": 800, "color": "#FF9800"},
+        {"stage": "Propositions", "value": 300, "color": "#9C27B0"},
+        {"stage": "Ventes", "value": 120, "color": "#F44336"}
+      ]
+    },
+
+    "radar_chart": {
+      "type": "radar_chart",
+      "title": "Évaluation Produit Multi-Critères",
+      "config": {
+        "width": 500,
+        "height": 500,
+        "max_value": 100,
+        "show_grid": true
+      },
+      "dimensions": [
+        "Qualité",
+        "Prix",
+        "Service Client",
+        "Innovation",
+        "Livraison",
+        "Fiabilité"
+      ],
+      "data": [
+        {
+          "series": "Produit A",
+          "color": "#FF6B6B",
+          "values": [85, 70, 90, 75, 80, 95]
+        },
+        {
+          "series": "Produit B",
+          "color": "#4ECDC4",
+          "values": [70, 85, 75, 90, 70, 80]
+        }
+      ]
+    },
+
+    "treemap": {
+      "type": "treemap",
+      "title": "Répartition du Chiffre d'Affaires",
+      "config": {
+        "width": 800,
+        "height": 600,
+        "show_labels": true,
+        "show_values": true
+      },
+      "data": {
+        "name": "CA Total",
+        "children": [
+          {
+            "name": "Division France",
+            "value": 2500000,
+            "color": "#2196F3",
+            "children": [
+              {"name": "Région Paris", "value": 1200000, "color": "#1976D2"},
+              {"name": "Région Lyon", "value": 800000, "color": "#1565C0"},
+              {"name": "Région Marseille", "value": 500000, "color": "#0D47A1"}
+            ]
+          },
+          {
+            "name": "Division International",
+            "value": 1800000,
+            "color": "#4CAF50",
+            "children": [
+              {"name": "Europe", "value": 1200000, "color": "#388E3C"},
+              {"name": "Asie", "value": 600000, "color": "#2E7D32"}
+            ]
+          }
+        ]
+      }
+    },
+
+    "sankey_diagram": {
+      "type": "sankey_diagram",
+      "title": "Flux de Revenus",
+      "config": {
+        "width": 800,
+        "height": 500,
+        "node_padding": 10
+      },
+      "data": {
+        "nodes": [
+          {"id": "web", "name": "Site Web", "color": "#2196F3"},
+          {"id": "mobile", "name": "Application", "color": "#4CAF50"},
+          {"id": "store", "name": "Magasin", "color": "#FF9800"},
+          {"id": "leads", "name": "Leads", "color": "#9C27B0"},
+          {"id": "sales", "name": "Ventes", "color": "#F44336"}
+        ],
+        "links": [
+          {"source": "web", "target": "leads", "value": 500},
+          {"source": "mobile", "target": "leads", "value": 300},
+          {"source": "store", "target": "leads", "value": 200},
+          {"source": "leads", "target": "sales", "value": 400}
+        ]
+      }
+    },
+
+    "timeline": {
+      "type": "timeline",
+      "title": "Roadmap Projet 2024",
+      "config": {
+        "width": 1000,
+        "height": 400,
+        "orientation": "horizontal",
+        "show_milestones": true
+      },
+      "data": [
+        {
+          "id": "phase1",
+          "title": "Analyse & Conception",
+          "start": "2024-01-15",
+          "end": "2024-03-15",
+          "color": "#2196F3",
+          "progress": 100
+        },
+        {
+          "id": "phase2",
+          "title": "Développement",
+          "start": "2024-03-01",
+          "end": "2024-06-30",
+          "color": "#4CAF50",
+          "progress": 75
+        },
+        {
+          "id": "phase3",
+          "title": "Tests & Validation",
+          "start": "2024-06-15",
+          "end": "2024-08-15",
+          "color": "#FF9800",
+          "progress": 30
+        },
+        {
+          "id": "phase4",
+          "title": "Déploiement",
+          "start": "2024-08-01",
+          "end": "2024-09-30",
+          "color": "#9C27B0",
+          "progress": 0
+        }
+      ],
+      "milestones": [
+        {"date": "2024-03-15", "title": "Validation Conception", "color": "#F44336"},
+        {"date": "2024-06-30", "title": "Release Beta", "color": "#F44336"},
+        {"date": "2024-09-30", "title": "Go Live", "color": "#F44336"}
+      ]
+    },
+
+    "box_plot": {
+      "type": "box_plot",
+      "title": "Distribution des Salaires par Département",
+      "config": {
+        "width": 700,
+        "height": 400,
+        "show_outliers": true
+      },
+      "data": [
+        {
+          "category": "IT",
+          "min": 35000,
+          "q1": 42000,
+          "median": 50000,
+          "q3": 58000,
+          "max": 75000,
+          "outliers": [80000, 85000],
+          "color": "#2196F3"
+        },
+        {
+          "category": "Marketing",
+          "min": 30000,
+          "q1": 38000,
+          "median": 45000,
+          "q3": 52000,
+          "max": 65000,
+          "outliers": [70000],
+          "color": "#4CAF50"
+        },
+        {
+          "category": "Ventes",
+          "min": 28000,
+          "q1": 35000,
+          "median": 42000,
+          "q3": 55000,
+          "max": 80000,
+          "outliers": [85000, 90000],
+          "color": "#FF9800"
+        }
+      ]
+    },
+
+    "table": {
+      "type": "table",
+      "title": "Rapport Mensuel des Ventes",
+      "config": {
+        "width": 800,
+        "height": 500,
+        "pagination": true,
+        "page_size": 10,
+        "sortable": true,
+        "searchable": true,
+        "exportable": true
+      },
+      "columns": [
+        {"field": "date", "title": "Date", "type": "date", "sortable": true, "width": 100},
+        {"field": "region", "title": "Région", "type": "string", "sortable": true, "width": 120},
+        {"field": "salesperson", "title": "Commercial", "type": "string", "sortable": true, "width": 150},
+        {"field": "product", "title": "Produit", "type": "string", "sortable": true, "width": 200},
+        {"field": "amount", "title": "Montant", "type": "currency", "sortable": true, "width": 120, "format": "€"},
+        {"field": "status", "title": "Statut", "type": "status", "sortable": true, "width": 100}
+      ],
+      "data": [
+        {
+          "date": "2024-01-15",
+          "region": "Nord",
+          "salesperson": "Jean Dupont",
+          "product": "Solution CRM Pro",
+          "amount": 15000,
+          "status": "Confirmé"
+        },
+        {
+          "date": "2024-01-18",
+          "region": "Sud",
+          "salesperson": "Marie Martin",
+          "product": "Module Analytics",
+          "amount": 8500,
+          "status": "En cours"
+        }
+      ],
+      "formatting": {
+        "status": {
+          "Confirmé": {"color": "#4CAF50", "background": "#E8F5E8"},
+          "En cours": {"color": "#FF9800", "background": "#FFF3E0"},
+          "Annulé": {"color": "#F44336", "background": "#FFEBEE"}
+        }
+      }
+    },
+
+    "kpi_dashboard": {
+      "type": "kpi_dashboard",
+      "title": "Dashboard Exécutif",
+      "config": {
+        "width": 1200,
+        "height": 800,
+        "columns": 4,
+        "refresh_interval": 30000
+      },
+      "kpis": [
+        {
+          "id": "revenue",
+          "title": "Chiffre d'Affaires",
+          "value": 2450000,
+          "format": "currency",
+          "change": 12.5,
+          "change_type": "percentage",
+          "period": "vs mois dernier",
+          "color": "#4CAF50",
+          "icon": "trending_up",
+          "size": "large"
+        },
+        {
+          "id": "customers",
+          "title": "Nouveaux Clients",
+          "value": 156,
+          "format": "number",
+          "change": -3.2,
+          "change_type": "percentage",
+          "period": "vs mois dernier",
+          "color": "#F44336",
+          "icon": "people",
+          "size": "medium"
+        },
+        {
+          "id": "conversion",
+          "title": "Taux de Conversion",
+          "value": 3.8,
+          "format": "percentage",
+          "change": 0.5,
+          "change_type": "absolute",
+          "period": "vs mois dernier",
+          "color": "#2196F3",
+          "icon": "convert",
+          "size": "medium"
+        },
+        {
+          "id": "satisfaction",
+          "title": "Satisfaction Client",
+          "value": 4.2,
+          "format": "rating",
+          "max": 5,
+          "change": 0.1,
+          "change_type": "absolute",
+          "period": "vs mois dernier",
+          "color": "#FF9800",
+          "icon": "star",
+          "size": "medium"
+        }
+      ]
+    },
+
+    "combo_chart": {
+      "type": "combo_chart",
+      "title": "Ventes et Marge par Trimestre",
+      "config": {
+        "width": 800,
+        "height": 450,
+        "dual_axis": true
+      },
+      "axes": {
+        "x": {
+          "label": "Trimestre",
+          "type": "category"
+        },
+        "y1": {
+          "label": "Ventes (€)",
+          "type": "numeric",
+          "position": "left",
+          "format": "currency"
+        },
+        "y2": {
+          "label": "Marge (%)",
+          "type": "numeric",
+          "position": "right",
+          "format": "percentage"
+        }
+      },
+      "series": [
+        {
+          "name": "Ventes",
+          "type": "column",
+          "axis": "y1",
+          "color": "#2196F3",
+          "data": [
+            {"x": "Q1 2024", "y": 1250000},
+            {"x": "Q2 2024", "y": 1380000},
+            {"x": "Q3 2024", "y": 1420000},
+            {"x": "Q4 2024", "y": 1650000}
+          ]
+        },
+        {
+          "name": "Marge",
+          "type": "line",
+          "axis": "y2",
+          "color": "#4CAF50",
+          "data": [
+            {"x": "Q1 2024", "y": 15.5},
+            {"x": "Q2 2024", "y": 16.2},
+            {"x": "Q3 2024", "y": 17.1},
+            {"x": "Q4 2024", "y": 18.3}
+          ]
+        }
+      ]
+    }
+
+  },
+  
+  "schema_definitions": {
+    "base_config": {
+      "width": "number (pixels)",
+      "height": "number (pixels)",
+      "responsive": "boolean",
+      "theme": "string (light|dark|custom)",
+      "animations": "boolean",
+      "export_options": "array of strings"
+    },
+    "axis_config": {
+      "label": "string",
+      "type": "string (numeric|category|datetime)",
+      "format": "string (currency|percentage|number|date)",
+      "scale": "string (linear|log|sqrt)",
+      "grid": "boolean",
+      "min": "number (optional)",
+      "max": "number (optional)"
+    },
+    "color_schemes": [
+      "professional", "corporate", "vibrant", "pastel", "monochrome", "custom"
+    ],
+    "interaction_types": [
+      "hover", "click", "zoom", "pan", "brush", "tooltip", "drill_down"
+    ]
+  }
+}
