@@ -66,32 +66,6 @@ export const Sidebar = ({
             ))}
           </div>
         </div>
-        <Separator />
-        <div className="px-3 py-2">
-          <h3 className="mb-2 px-4 text-sm font-semibold tracking-tight text-muted-foreground">
-            Actions Rapides
-          </h3>
-          <div className="space-y-1">
-            {quickActions.map((item) => (
-              <Button
-                key={item.id}
-                variant="ghost"
-                className="w-full justify-start"
-                disabled
-              >
-                <item.icon className="mr-2 h-4 w-4" />
-                {item.id === 'analytics' ? 'Analytique' : item.id === 'database' ? 'Base de Données' : 'Paramètres'}
-              </Button>
-            ))}
-          </div>
-        </div>
-        <Separator />
-        <div className="px-3 py-2">
-          <div className="flex items-center">
-            <User className="mr-2 h-4 w-4" />
-            <span className="text-sm font-medium">Profil Utilisateur</span>
-          </div>
-        </div>
       </div>
     </div>
   );
