@@ -6,6 +6,7 @@ import {
   Home,
   Bot
 } from 'lucide-react';
+import { ThemeToggle } from './ThemeToggle';
 
 const sidebarItems = [
   {
