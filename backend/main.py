@@ -337,6 +337,13 @@ agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_pa
 async def lifespan(app: FastAPI):
     # Startup event
     print("Starting NeuralStark API...")
+    
+    # Ensure required directories exist
+    os.makedirs(settings.CHROMA_DB_PATH, exist_ok=True)
+    os.makedirs(settings.INTERNAL_KNOWLEDGE_BASE_PATH, exist_ok=True)
+    os.makedirs(settings.EXTERNAL_KNOWLEDGE_BASE_PATH, exist_ok=True)
+    print(f"✓ Verified required directories exist")
+    
     start_watcher_in_background()
     yield
     # Shutdown event
