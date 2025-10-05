@@ -133,19 +133,6 @@ export const Chat: React.FC = () => {
     return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(value);
   };
 
-  const formatNumber = (value: number, format?: string) => {
-    switch (format) {
-      case 'currency':
-        return formatCurrency(value);
-      case 'percentage':
-        return `${value}%`;
-      case 'rating':
-        return `${value}/5`;
-      default:
-        return value.toLocaleString('fr-FR');
-    }
-  };
-
   
 
   return (
