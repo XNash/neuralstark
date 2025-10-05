@@ -28,8 +28,8 @@ class Settings:
     LLM_MODEL: str = os.getenv("LLM_MODEL", "gemini-2.5-flash") # Default to a common chat model
     LLM_API_KEY: str = os.getenv("LLM_API_KEY", "AIzaSyDCzcuoGZpK0ZfS7G3iUydpv-4jFFfq7X0") # Generic API key for LLM
 
-    # Embedding settings - Using BAAI/bge-m3 for better accuracy (1024 dimensions)
-    EMBEDDING_MODEL_NAME: str = os.getenv("EMBEDDING_MODEL_NAME", "BAAI/bge-m3")
+    # Embedding settings - Using smaller model for disk space efficiency (384 dimensions)
+    EMBEDDING_MODEL_NAME: str = os.getenv("EMBEDDING_MODEL_NAME", "all-MiniLM-L6-v2")
     EMBEDDING_API_KEY: str = os.getenv("EMBEDDING_API_KEY", "") # Not needed for local embeddings
 
     # ChromaDB settings - Use relative path from project root
@@ -38,8 +38,8 @@ class Settings:
     # Canvas settings
     CANVAS_TEMPLATES_PATH: str = os.getenv("CANVAS_TEMPLATES_PATH", "canvas_templates.json")
 
-    # Embedding optimization - Adjusted for bge-m3 model
-    EMBEDDING_BATCH_SIZE: int = int(os.getenv("EMBEDDING_BATCH_SIZE", 4)) # Reduced for larger model
+    # Embedding optimization - Adjusted for smaller model
+    EMBEDDING_BATCH_SIZE: int = int(os.getenv("EMBEDDING_BATCH_SIZE", 8)) # Optimized for smaller model
     
     # OCR settings
     OCR_ENABLED: bool = os.getenv("OCR_ENABLED", "true").lower() == "true"
