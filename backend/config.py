@@ -28,10 +28,9 @@ class Settings:
     LLM_MODEL: str = os.getenv("LLM_MODEL", "gemini-2.5-flash") # Default to a common chat model
     LLM_API_KEY: str = os.getenv("LLM_API_KEY", "AIzaSyDCzcuoGZpK0ZfS7G3iUydpv-4jFFfq7X0") # Generic API key for LLM
 
-    # Embedding settings
-    # EMBEDDING_MODEL_NAME: str = os.getenv("EMBEDDING_MODEL_NAME", "BAAI/bge-m3")
-    EMBEDDING_MODEL_NAME: str = os.getenv("EMBEDDING_MODEL_NAME", "all-MiniLM-L6-v2")
-    EMBEDDING_API_KEY: str = os.getenv("EMBEDDING_API_KEY", "") # Not needed for local BGE-M3, but good for API-based embeddings
+    # Embedding settings - Using BAAI/bge-m3 for better accuracy (1024 dimensions)
+    EMBEDDING_MODEL_NAME: str = os.getenv("EMBEDDING_MODEL_NAME", "BAAI/bge-m3")
+    EMBEDDING_API_KEY: str = os.getenv("EMBEDDING_API_KEY", "") # Not needed for local embeddings
 
     # ChromaDB settings - Use relative path from project root
     CHROMA_DB_PATH: str = os.getenv("CHROMA_DB_PATH", str(PROJECT_ROOT / "chroma_db"))
@@ -39,12 +38,20 @@ class Settings:
     # Canvas settings
     CANVAS_TEMPLATES_PATH: str = os.getenv("CANVAS_TEMPLATES_PATH", "canvas_templates.json")
 
-    # Embedding optimization - Reduced for better resource usage
-    EMBEDDING_BATCH_SIZE: int = int(os.getenv("EMBEDDING_BATCH_SIZE", 8)) # Reduced batch size for lower memory usage
+    # Embedding optimization - Adjusted for bge-m3 model
+    EMBEDDING_BATCH_SIZE: int = int(os.getenv("EMBEDDING_BATCH_SIZE", 4)) # Reduced for larger model
     
     # OCR settings
     OCR_ENABLED: bool = os.getenv("OCR_ENABLED", "true").lower() == "true"
     OCR_LANGUAGES: str = os.getenv("OCR_LANGUAGES", "eng+fra") # English and French by default
+    
+    # RAG Optimization settings
+    CHUNK_SIZE: int = int(os.getenv("CHUNK_SIZE", 1200)) # Increased for better semantic context
+    CHUNK_OVERLAP: int = int(os.getenv("CHUNK_OVERLAP", 250)) # Increased overlap for continuity
+    RETRIEVAL_K: int = int(os.getenv("RETRIEVAL_K", 10)) # Retrieve more candidates for reranking
+    RETRIEVAL_SCORE_THRESHOLD: float = float(os.getenv("RETRIEVAL_SCORE_THRESHOLD", 0.3)) # Filter low-quality results
+    RERANKER_MODEL: str = os.getenv("RERANKER_MODEL", "cross-encoder/ms-marco-MiniLM-L-6-v2") # Cross-encoder for reranking
+    RERANKER_TOP_K: int = int(os.getenv("RERANKER_TOP_K", 5)) # Return top 5 after reranking
 
 settings = Settings()
 
@@ -79,3 +86,7 @@ if __name__ != "__main__" and "pytest" not in sys.modules:
     print(f"   ChromaDB Path: {settings.CHROMA_DB_PATH}")
     print(f"   Internal KB: {settings.INTERNAL_KNOWLEDGE_BASE_PATH}")
     print(f"   External KB: {settings.EXTERNAL_KNOWLEDGE_BASE_PATH}")
+    print(f"   Embedding Model: {settings.EMBEDDING_MODEL_NAME}")
+    print(f"   Reranker Model: {settings.RERANKER_MODEL}")
+    print(f"   Chunk Size: {settings.CHUNK_SIZE} (Overlap: {settings.CHUNK_OVERLAP})")
+    print(f"   Retrieval K: {settings.RETRIEVAL_K} -> Reranked Top K: {settings.RERANKER_TOP_K}")

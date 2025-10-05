@@ -44,23 +44,27 @@ def get_embeddings():
     """Lazy load embeddings to save memory."""
     global _embeddings_instance
     if _embeddings_instance is None:
-        logging.info("Initializing embeddings model...")
+        logging.info(f"Initializing embeddings model: {settings.EMBEDDING_MODEL_NAME}...")
         _embeddings_instance = HuggingFaceEmbeddings(
             model_name=settings.EMBEDDING_MODEL_NAME,
             model_kwargs={'device': 'cpu'},
             encode_kwargs={'batch_size': settings.EMBEDDING_BATCH_SIZE, 'normalize_embeddings': True}
         )
+        logging.info("✓ Embeddings model loaded successfully")
     return _embeddings_instance
 
 def get_text_splitter():
-    """Get or create text splitter instance."""
+    """Get or create text splitter instance with optimized chunking parameters."""
     global _text_splitter_instance
     if _text_splitter_instance is None:
-        # Optimized chunking parameters for better performance
+        # Optimized chunking parameters for better semantic context preservation
         _text_splitter_instance = RecursiveCharacterTextSplitter(
-            chunk_size=800,  # Reduced from 1000 for faster processing
-            chunk_overlap=150  # Reduced from 200
+            chunk_size=settings.CHUNK_SIZE,  # Increased from 800 to 1200 for better context
+            chunk_overlap=settings.CHUNK_OVERLAP,  # Increased from 150 to 250 for continuity
+            length_function=len,
+            separators=["\n\n", "\n", ". ", " ", ""]  # Smart splitting by paragraphs, sentences, etc.
         )
+        logging.info(f"✓ Text splitter initialized (chunk_size={settings.CHUNK_SIZE}, overlap={settings.CHUNK_OVERLAP})")
     return _text_splitter_instance
 
 # Ensure the ChromaDB directory exists on startup
@@ -116,7 +120,7 @@ def process_document_task(self, file_path: str, event_type: str):
                     logging.warning(f"Error deleting old chunks for {file_path}: {e}")
                     # Continue to add new ones, but log the error
 
-            # Split text into chunks
+            # Split text into chunks with improved parameters
             texts = text_splitter.split_text(extracted_text)
             
             # Limit chunk size for very large documents to prevent memory issues
@@ -132,20 +136,22 @@ def process_document_task(self, file_path: str, event_type: str):
                         "event_type": event_type,
                         "timestamp": os.path.getmtime(file_path),
                         "source_type": source_type,
-                        "batch": i // batch_size
-                    } for _ in batch_texts]
+                        "batch": i // batch_size,
+                        "chunk_index": i + j  # Add chunk index for ordering
+                    } for j in range(len(batch_texts))]
                     
                     vector_store.add_texts(texts=batch_texts, metadatas=metadatas)
                     logging.info(f"Indexed batch {i // batch_size + 1} with {len(batch_texts)} chunks")
             else:
-                # Prepare metadata for each chunk
+                # Prepare metadata for each chunk with enhanced information
                 metadatas = [{
                     "source": normalized_file_path,
                     "file_name": os.path.basename(file_path),
                     "event_type": event_type,
                     "timestamp": os.path.getmtime(file_path),
-                    "source_type": source_type
-                } for _ in texts]
+                    "source_type": source_type,
+                    "chunk_index": i  # Add chunk index for ordering
+                } for i in range(len(texts))]
 
                 # Add documents to ChromaDB
                 start_time = time.time()
@@ -229,8 +235,9 @@ def process_document_sync(file_path: str, event_type: str):
                         "event_type": event_type,
                         "timestamp": os.path.getmtime(file_path),
                         "source_type": source_type,
-                        "batch": i // batch_size
-                    } for _ in batch_texts]
+                        "batch": i // batch_size,
+                        "chunk_index": i + j
+                    } for j in range(len(batch_texts))]
                     
                     vector_store.add_texts(texts=batch_texts, metadatas=metadatas)
                     logging.info(f"[SYNC] Indexed batch {i // batch_size + 1} with {len(batch_texts)} chunks")
@@ -241,8 +248,9 @@ def process_document_sync(file_path: str, event_type: str):
                     "file_name": os.path.basename(file_path),
                     "event_type": event_type,
                     "timestamp": os.path.getmtime(file_path),
-                    "source_type": source_type
-                } for _ in texts]
+                    "source_type": source_type,
+                    "chunk_index": i
+                } for i in range(len(texts))]
 
                 # Add documents to ChromaDB
                 start_time = time.time()
