@@ -17,7 +17,7 @@ interface FileContentModalProps {
   documentContent: string | null;
 }
 
-const FileContentModal: React.FC<FileContentModalProps> = ({
+const FileContentModal = ({
   showContentModal,
   setShowContentModal,
   documentContent,
