@@ -51,7 +51,7 @@ interface Message {
   timestamp: Date;
 }
 
-export const Chat: React.FC = () => {
+export const Chat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
