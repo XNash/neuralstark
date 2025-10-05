@@ -527,53 +527,94 @@ The application is configured to allow access from any host:
 
 ## 🐛 Troubleshooting
 
-### Services Won't Start
+### Backend Takes Long to Start
 
-**Port already in use:**
-```bash
-# Linux/macOS
-lsof -i :8001
-kill -9 <PID>
+**This is normal!** The backend loads ML models (SentenceTransformer) which takes 10-20 seconds on first startup.
 
-# Windows
-netstat -ano | findstr :8001
-taskkill /PID <PID> /F
+Wait for:
+```
+✓ Backend started on port 8001
 ```
 
-**Redis not running:**
+### Port Already in Use
+
 ```bash
+# Find what's using the port
+lsof -i:8001  # Backend
+lsof -i:3000  # Frontend
+
+# Kill the process
+kill -9 <PID>
+
+# Or use the stop script
+./stop.sh
+./run.sh
+```
+
+### Redis Not Running
+
+```bash
+# Check Redis
 redis-cli ping  # Should return "PONG"
-# If not, start Redis:
+
+# Install Redis (if not installed)
+# Ubuntu/Debian:
+sudo apt-get install redis-server
+
+# macOS:
+brew install redis
+
+# Start Redis
 redis-server --daemonize yes
 ```
 
-**MongoDB not running:**
+### MongoDB Not Running
+
 ```bash
-mongod --version
-# Start MongoDB:
-mongod --fork --logpath /var/log/mongodb.log --bind_ip_all
+# Check MongoDB
+mongosh --eval "db.version()"
+
+# Install if needed (see Prerequisites section)
+
+# Start MongoDB
+mongod --fork --logpath logs/mongodb.log --bind_ip_all
 ```
 
 ### Check Logs
 
-**Linux/macOS:**
+All logs are in the `logs/` directory:
+
 ```bash
-tail -f /var/log/backend.log
-tail -f /var/log/frontend.log
-tail -f /var/log/celery_worker.log
+# Backend logs
+tail -f logs/backend.log
+
+# Frontend logs
+tail -f logs/frontend.log
+
+# Celery logs
+tail -f logs/celery_worker.log
 ```
 
-**Windows:**
-Check the command windows opened by `run.bat`
+### Permission Denied
+
+```bash
+# Make scripts executable
+chmod +x run.sh stop.sh
+
+# Ensure you're in project directory
+cd /path/to/neuralstark
+./run.sh
+```
 
 ### Common Issues
 
-1. **CORS errors**: Ensure backend has latest changes, restart backend
-2. **Frontend not loading**: Check if port 3000 is available
-3. **OCR not working**: Verify Tesseract is installed: `tesseract --version`
-4. **Documents not processing**: Check Celery worker logs
+1. **Backend loading**: Wait 20-30 seconds for ML models to load
+2. **Port conflicts**: Use `./stop.sh` then `./run.sh`
+3. **Redis missing**: Install Redis (see Prerequisites)
+4. **Logs location**: Check `logs/` directory in project root
+5. **Dependencies**: Run `pip install -r backend/requirements.txt`
 
-For detailed troubleshooting, see [RUNNING_THE_APP.md](RUNNING_THE_APP.md).
+For comprehensive troubleshooting, see [QUICK_START.md](QUICK_START.md) and [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 
 ---
 
