@@ -123,29 +123,33 @@ export const Chat = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col">
-      <div className="p-4 md:p-8 pt-6 flex flex-col flex-1">
-        <div className="flex items-center justify-between space-y-2 mb-4">
-          <div className="flex items-center space-x-2">
-            <MessageSquare className="h-6 w-6" />
-            <h2 className="text-3xl font-bold tracking-tight">Chat IA</h2>
+    <div className="flex-1 flex flex-col h-screen overflow-hidden">
+      <div className="flex flex-col flex-1 h-full">
+        {/* Header Section */}
+        <div className="p-4 md:p-8 pt-6 pb-4 flex-shrink-0">
+          <div className="flex items-center justify-between space-y-2 mb-4">
+            <div className="flex items-center space-x-2">
+              <MessageSquare className="h-6 w-6" />
+              <h2 className="text-3xl font-bold tracking-tight">Chat IA</h2>
+            </div>
+            <Badge variant="secondary" className="flex items-center gap-1">
+              <Bot className="h-3 w-3" />
+              NeuralStark IA
+            </Badge>
           </div>
-          <Badge variant="secondary" className="flex items-center gap-1">
-            <Bot className="h-3 w-3" />
-            NeuralStark IA
-          </Badge>
+
+          {chatError && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertTriangle className="h-5 w-5" />
+              <AlertTitle>Erreur du Chat</AlertTitle>
+              <AlertDescription>{chatError}</AlertDescription>
+            </Alert>
+          )}
         </div>
 
-        {chatError && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertTriangle className="h-5 w-5" />
-            <AlertTitle>Erreur du Chat</AlertTitle>
-            <AlertDescription>{chatError}</AlertDescription>
-          </Alert>
-        )}
-
-        <div className="flex flex-col flex-1 justify-between">
-          <ScrollArea className="flex-1 px-6">
+        {/* Messages Area - Takes remaining space */}
+        <div className="flex-1 overflow-hidden px-4 md:px-8">
+          <ScrollArea className="h-full px-6">
             <div className="space-y-4 py-4">
               {messages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center flex-1 text-center">
