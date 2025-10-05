@@ -365,15 +365,16 @@ class ChatRequest(BaseModel):
 class DeleteRequest(BaseModel):
     file_path: str
 
-@app.get("/")
+@app.get("/api")
+@app.get("/api/")
 async def read_root():
     return {"message": "Welcome to NeuralStark API!"}
 
-@app.get("/health")
+@app.get("/api/health")
 async def health_check():
     return {"status": "ok"}
 
-@app.post("/chat")
+@app.post("/api/chat")
 async def chat_endpoint(request: ChatRequest):
     print(f"Received chat query: {request.query}")
     start_time = time.time()
