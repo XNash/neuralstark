@@ -15,7 +15,7 @@ class Settings:
 
     # AI settings (for LLM chat model)
     LLM_MODEL: str = os.getenv("LLM_MODEL", "gemini-2.5-flash") # Default to a common chat model
-    LLM_API_KEY: str = os.getenv("LLM_API_KEY", "AIzaSyD273RLpkzyDyU59NKxTERC3jm0xVhH7N4") # Generic API key for LLM
+    LLM_API_KEY: str = os.getenv("LLM_API_KEY", "AIzaSyDCzcuoGZpK0ZfS7G3iUydpv-4jFFfq7X0") # Generic API key for LLM
 
     # Embedding settings
     # EMBEDDING_MODEL_NAME: str = os.getenv("EMBEDDING_MODEL_NAME", "BAAI/bge-m3")
