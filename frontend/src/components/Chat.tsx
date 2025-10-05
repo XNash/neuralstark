@@ -261,28 +261,30 @@ export const Chat = () => {
               <div ref={messagesEndRef} />
             </div>
           </ScrollArea>
-          <div className="border-t p-4">
-            <div className="flex gap-2">
-              <Input
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Tapez votre message ici..."
-                className="flex-1"
-                disabled={isLoading}
-              />
-              <Button
-                onClick={handleSendMessage}
-                disabled={isLoading || !inputValue.trim()}
-                size="icon"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Appuyez sur Entrée pour envoyer • NeuralStark IA peut générer des graphiques, des tableaux de bord et analyser vos données
-            </p>
+        </div>
+
+        {/* Input Area - Fixed at bottom */}
+        <div className="flex-shrink-0 border-t bg-background p-4 md:px-8">
+          <div className="flex gap-2">
+            <Input
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Tapez votre message ici..."
+              className="flex-1"
+              disabled={isLoading}
+            />
+            <Button
+              onClick={handleSendMessage}
+              disabled={isLoading || !inputValue.trim()}
+              size="icon"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
           </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            Appuyez sur Entrée pour envoyer • NeuralStark IA peut générer des graphiques, des tableaux de bord et analyser vos données
+          </p>
         </div>
       </div>
     </div>
