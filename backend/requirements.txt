@@ -114,6 +114,7 @@ pillow==11.3.0
 platformdirs==4.4.0
 pluggy==1.6.0
 posthog==5.4.0
+prompt_toolkit==3.0.52
 propcache==0.4.0
 proto-plus==1.26.1
 protobuf==6.32.1
@@ -184,6 +185,7 @@ uvloop==0.21.0
 vine==5.1.0
 watchdog==4.0.1
 watchfiles==1.1.0
+wcwidth==0.2.14
 websocket-client==1.8.0
 websockets==15.0.1
 xlrd==2.0.2
