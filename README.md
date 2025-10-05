@@ -6,41 +6,42 @@ NeuralStark is a multi-platform AI assistant powered by **Xynorash**, an AI agen
 
 ### One-Command Setup
 
-**🚀 New Robust Scripts (Tested & Verified):**
+**Universal Scripts (Works on any Linux environment - no sudo required):**
+
 ```bash
-./start_services.sh  # Comprehensive startup with error handling
-./stop_services.sh   # Clean shutdown
+# Make executable (first time only)
+chmod +x run.sh stop.sh
+
+# Start all services
+./run.sh
+
+# Stop services
+./stop.sh
 ```
 
-**Original Scripts:**
-```bash
-./run.sh   # Linux/macOS (basic startup)
-./stop.sh  # Linux/macOS (basic stop)
-```
+That's it! The scripts will:
+- ✅ Auto-detect your Python virtual environment
+- ✅ Start MongoDB, Redis, Celery, Backend, and Frontend
+- ✅ Create local `logs/` directory for all logs
+- ✅ Perform health checks on all services
+- ✅ Work on Ubuntu, Debian, CentOS, macOS
 
-**Windows:**
-```cmd
-run.bat    # Windows startup
-stop.bat   # Windows stop
-```
+**Startup time:** ~20-30 seconds (backend loads ML models)
 
-**Recommendation:** Use `start_services.sh` for better error handling and verification.
+### Access the Application
 
-That's it! All services will start automatically. Access the application at:
+Once started:
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:8001
 - **API Docs**: http://localhost:8001/docs
 
-### Stopping the Application
+### View Logs
 
-**Linux / macOS / WSL:**
+All logs are in the local `logs/` directory:
 ```bash
-./stop.sh
-```
-
-**Windows:**
-```cmd
-stop.bat
+tail -f logs/backend.log
+tail -f logs/frontend.log
+tail -f logs/celery_worker.log
 ```
 
 ---
