@@ -71,7 +71,15 @@ export class ApiClient {
       throw new Error(errorData.detail || errorData.error || `Documents API error: ${response.statusText}`);
     }
 
-    return response.json();
+    const data = await response.json();
+    
+    // Ensure the response has the expected structure
+    if (typeof data !== 'object' || !Array.isArray(data.indexed_documents)) {
+      console.warn('Unexpected API response structure:', data);
+      return { indexed_documents: [] };
+    }
+
+    return data;
   }
 
   async healthCheck(): Promise<HealthResponse> {
