@@ -230,6 +230,13 @@ def process_document_sync(file_path: str, event_type: str):
             # Split text into chunks
             texts = text_splitter.split_text(extracted_text)
             
+            # Filter out empty or None chunks
+            texts = [text for text in texts if text and text.strip()]
+            
+            if not texts:
+                logging.warning(f"[SYNC] No valid text chunks after filtering empty content for {file_path}")
+                return {"status": "no_content", "file_path": file_path}
+            
             # Limit chunk size for very large documents
             if len(texts) > 1000:
                 logging.warning(f"[SYNC] Document {file_path} has {len(texts)} chunks. Processing in batches.")
