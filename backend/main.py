@@ -659,9 +659,9 @@ async def reset_knowledge_base(reset_type: str):
     try:
         # Clear the ChromaDB vector store using the client API
         client = chromadb.PersistentClient(path=settings.CHROMA_DB_PATH)
-        # The default collection name used by LangChain's Chroma is "langchain"
+        # Use consistent collection name across the application
         try:
-            collection = client.get_collection("langchain")
+            collection = client.get_collection("knowledge_base_collection")
             # Get all items in the collection to delete them by ID
             # This is safer than deleting and recreating the collection
             results = collection.get()
