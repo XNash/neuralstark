@@ -77,9 +77,14 @@ def process_document_task(self, file_path: str, event_type: str):
     
     try:
         # Initialize ChromaDB client inside the task to avoid file locking issues
-        embeddings = get_embeddings()
         text_splitter = get_text_splitter()
-        vector_store = Chroma(persist_directory=settings.CHROMA_DB_PATH, embedding_function=embeddings)
+        
+        chroma_client = chromadb.PersistentClient(path=settings.CHROMA_DB_PATH)
+        vector_store = Chroma(
+             client=chroma_client,
+             embedding_function=get_embeddings(),
+             collection_name="knowledge_base_collection"
+        )
 
         # Normalize file_path for consistent ID generation
         normalized_file_path = os.path.abspath(file_path)
