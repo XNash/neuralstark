@@ -1,16 +1,16 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, use } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { ScrollArea } from './ui/scroll-area';
 import { Badge } from './ui/badge';
 import { apiClient } from '../lib/api';
-import { Send, MessageSquare, Bot, User, AlertTriangle } from 'lucide-react';
+import { Send, Mic, MicOff ,MessageSquare, Bot, User, AlertTriangle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import ReactMarkdown from 'react-markdown';
 import BarChartCanvas from './canvas/BarChartCanvas';
 import PieChartCanvas from './canvas/PieChartCanvas';
 import TableCanvas from './canvas/TableCanvas';
-import KpiDashboardCanvas from './canvas/KpiDashboardCanvas';
+import KpiDashboardCanvas from './canvas/KpiDashboardCanvas';   
 import ComboChartCanvas from './canvas/ComboChartCanvas';
 import {
   Chart as ChartJS,
@@ -50,6 +50,7 @@ export const Chat = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -121,6 +122,37 @@ export const Chat = () => {
       handleSendMessage();
     }
   };
+
+  const speechToText = () => {
+    var speechRecgnition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+    var recognition = new speechRecgnition();
+
+    recognition.lang = 'fr-FR';
+    recognition.interimResults = true;
+    recognition.continuous = true;
+
+    if(!isSpeaking){
+        recognition.start();
+        setIsSpeaking(true);
+        //icon listening
+    }else{
+        recognition.stop();
+        setIsSpeaking(false);
+        //icon speak
+    }
+
+    recognition.onresult = (event:any) => {
+      const transcript = Array.from(event.results)
+      .map(result => result[0].transcript)
+      .join('');
+      console.log('Transcript:', transcript);
+      setInputValue(transcript);
+    };
+
+    recognition.onend = () => {
+      console.log("Recognition stops. Click on 'speak' to start again");
+    };
+  }
 
   return (
     <div className="flex-1 flex flex-col h-screen overflow-hidden">
@@ -274,6 +306,13 @@ export const Chat = () => {
               className="flex-1"
               disabled={isLoading}
             />
+            <Button
+              onClick={speechToText}
+              size="icon"
+            >
+              {isSpeaking ? <Mic className="text-green-500"/> : <MicOff/>}
+            </Button>
+
             <Button
               onClick={handleSendMessage}
               disabled={isLoading || !inputValue.trim()}
