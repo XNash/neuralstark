@@ -277,7 +277,12 @@ def _run_knowledge_base_search(input_json_string: str) -> str:
         return "Error: 'query' key is missing in the input JSON for KnowledgeBaseSearch."
 
     # Re-initialize ChromaDB client to ensure it reads the latest state from disk
-    current_vector_store = Chroma(persist_directory=settings.CHROMA_DB_PATH, embedding_function=embeddings)
+    chroma_client = chromadb.PersistentClient(path=settings.CHROMA_DB_PATH)
+    current_vector_store = Chroma(
+        client=chroma_client,
+        embedding_function=embeddings,
+        collection_name="knowledge_base_collection"
+    )
 
     # Build the filter for ChromaDB
     chroma_filter = {}
