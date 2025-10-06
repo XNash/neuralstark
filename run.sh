@@ -212,16 +212,23 @@ else
     # Check if key packages are installed
     if $PYTHON_BIN -c "import fastapi, chromadb, langchain, celery, redis" 2>/dev/null; then
         print_status success "Key Python packages already installed"
+        
+        # Verify ChromaDB version compatibility
+        CHROMADB_VERSION=$($PYTHON_BIN -c "import chromadb; print(chromadb.__version__)" 2>/dev/null)
+        if [ ! -z "$CHROMADB_VERSION" ]; then
+            print_status success "ChromaDB version: $CHROMADB_VERSION"
+        fi
     else
         print_status info "Installing Python packages (this may take a few minutes)..."
         $PIP_BIN install --upgrade pip setuptools wheel -q 2>/dev/null
         $PIP_BIN install -r requirements.txt -q 2>&1 | grep -i error
         
-        # Verify installation
-        if $PYTHON_BIN -c "import fastapi, chromadb, langchain, celery" 2>/dev/null; then
+        # Verify installation with additional ChromaDB-specific imports
+        if $PYTHON_BIN -c "import fastapi, chromadb, langchain, celery, redis, langchain_chroma" 2>/dev/null; then
             print_status success "Python dependencies installed successfully"
         else
             print_status warn "Some dependencies may be missing, installing critical packages..."
+            # Enhanced package list with ChromaDB-specific dependencies
             $PIP_BIN install -q fastapi uvicorn celery redis langchain langchain-google-genai \
                 chromadb sentence-transformers langchain-huggingface langchain-chroma \
                 pypdf python-docx pandas openpyxl reportlab pytesseract Pillow \
