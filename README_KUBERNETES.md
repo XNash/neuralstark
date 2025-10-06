@@ -12,7 +12,7 @@ The application is already set up and running with:
 - Redis and Celery started manually
 
 ### Access the Application
-- **Frontend**: https://bat-converter.preview.emergentagent.com
+- **Frontend**: https://search-assistant.preview.emergentagent.com
 - **Backend API**: http://localhost:8001
 - **API Docs**: http://localhost:8001/docs
 
@@ -258,7 +258,7 @@ curl -X POST "http://localhost:8001/chat" \
 
 ### 4. Access Frontend
 Open your browser to:
-https://bat-converter.preview.emergentagent.com
+https://search-assistant.preview.emergentagent.com
 
 ## 🚀 Production Recommendations
 
