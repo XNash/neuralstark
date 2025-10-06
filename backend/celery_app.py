@@ -69,6 +69,7 @@ def get_text_splitter():
     return _text_splitter_instance
 
 # Ensure the ChromaDB directory exists on startup
+# This prevents "Nothing found on disk" HNSW segment reader errors
 os.makedirs(settings.CHROMA_DB_PATH, exist_ok=True)
 
 @celery_app.task(bind=True, max_retries=3, default_retry_delay=10)
