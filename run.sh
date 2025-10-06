@@ -667,6 +667,22 @@ else
     print_status info "Try running again or check the INSTALLATION_GUIDE.md"
 fi
 
+echo ""
+print_status section "🔧 Common Issues & Solutions"
+echo ""
+print_status info "If chat queries fail with 'HNSW segment reader' errors:"
+echo "     curl -X POST 'http://localhost:8001/api/knowledge_base/reset?reset_type=soft'"
+echo ""
+print_status info "If ChromaDB corruption is suspected:"
+echo "     ./stop.sh && rm -rf chroma_db && ./run.sh"
+echo ""
+print_status info "If Redis connection fails:"
+echo "     redis-server --daemonize yes"
+echo ""
+print_status info "View real-time logs:"
+echo "     Backend:  tail -f $LOG_DIR/backend.log"
+echo "     Celery:   tail -f $LOG_DIR/celery_worker.log"
+
 echo "=========================================="
 echo ""
 
