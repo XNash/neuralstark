@@ -559,7 +559,12 @@ async def list_documents():
     try:
         # Re-initialize ChromaDB client to ensure it reads the latest state from disk
         # This is a temporary solution for development; for production, consider a more efficient refresh mechanism
-        current_vector_store = Chroma(persist_directory=settings.CHROMA_DB_PATH, embedding_function=embeddings)
+        chroma_client = chromadb.PersistentClient(path=settings.CHROMA_DB_PATH)
+        current_vector_store = Chroma(
+            client=chroma_client,
+            embedding_function=embeddings,
+            collection_name="knowledge_base_collection"
+        )
 
         results = current_vector_store.get(include=['metadatas'])
         
