@@ -1,6 +1,7 @@
 from celery import Celery
 from backend.config import settings
 from backend.document_parser import parse_document
+import chromadb
 import os
 import time
 import logging
