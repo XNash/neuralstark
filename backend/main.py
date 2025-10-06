@@ -295,6 +295,9 @@ def _run_knowledge_base_search(input_json_string: str) -> str:
         search_kwargs["filter"] = chroma_filter
     
     logging.info(f"Retrieving top {settings.RETRIEVAL_K} candidates...")
+    logging.info(f"Using ChromaDB path: {settings.CHROMA_DB_PATH}")
+    logging.info(f"Collection name: knowledge_base_collection")
+    logging.info(f"Query: {query}")
     retrieval_start = time.time()
     
     # Use similarity_search_with_score for better filtering
@@ -307,12 +310,22 @@ def _run_knowledge_base_search(input_json_string: str) -> str:
         logging.info(f"Retrieved {len(candidate_docs)} candidates in {time.time() - retrieval_start:.4f}s")
     except Exception as e:
         logging.error(f"Error during retrieval: {e}")
-        # Fallback to regular search
-        candidate_docs = [(doc, 0.0) for doc in current_vector_store.similarity_search(
-            query, 
-            k=settings.RETRIEVAL_K,
-            filter=chroma_filter if chroma_filter else None
-        )]
+        logging.error(f"Exception type: {type(e)}")
+        logging.error(f"Exception details: {str(e)}")
+        
+        # Try basic similarity search as fallback
+        try:
+            logging.info("Attempting fallback similarity_search...")
+            docs = current_vector_store.similarity_search(
+                query, 
+                k=settings.RETRIEVAL_K,
+                filter=chroma_filter if chroma_filter else None
+            )
+            candidate_docs = [(doc, 0.0) for doc in docs]
+            logging.info(f"Fallback successful with {len(candidate_docs)} documents")
+        except Exception as e2:
+            logging.error(f"Fallback also failed: {e2}")
+            return "Answer: Unable to search the knowledge base due to technical issues.\nSources: None"
     
     if not candidate_docs:
         logging.warning("No documents found in knowledge base for this query")
