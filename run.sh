@@ -400,16 +400,30 @@ else
     CELERY_BIN="celery"
 fi
 
+# Verify Redis is running before starting Celery
+if ! redis-cli ping &>/dev/null; then
+    print_status warn "Redis not responding - Celery requires Redis"
+    print_status info "Attempting to start Redis..."
+    redis-server --daemonize yes 2>/dev/null
+    sleep 2
+fi
+
 # Check if celery is available
 if ! command -v $CELERY_BIN &>/dev/null && ! $PYTHON_BIN -c "import celery" 2>/dev/null; then
     print_status warn "Celery not found, installing..."
     $PIP_BIN install -q celery redis
 fi
 
-# Start Celery
+# Verify ChromaDB imports in Celery context
+if ! $PYTHON_BIN -c "import chromadb; from backend.celery_app import process_document_task" 2>/dev/null; then
+    print_status warn "ChromaDB imports issue - may affect document processing"
+    WARNINGS=$((WARNINGS + 1))
+fi
+
+# Start Celery with reduced concurrency for stability
 nohup $CELERY_BIN -A backend.celery_app worker \
     --loglevel=info \
-    --concurrency=2 \
+    --concurrency=1 \
     --max-tasks-per-child=50 \
     > "$LOG_DIR/celery_worker.log" 2>&1 &
 
