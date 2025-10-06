@@ -81,7 +81,7 @@ else
     ERRORS=$((ERRORS + 1))
 fi
 
-# Set permissions
+# Set permissions and ensure proper ChromaDB setup
 chmod -R 755 chroma_db backend/knowledge_base logs 2>/dev/null
 if [ $? -eq 0 ]; then
     print_status success "Directory permissions set (755)"
@@ -89,9 +89,16 @@ else
     print_status warn "Could not set permissions, but directories exist"
 fi
 
-# Verify ChromaDB directory is writable
+# Ensure ChromaDB directory is properly initialized
 if [ -w "chroma_db" ]; then
     print_status success "ChromaDB directory is writable"
+    
+    # Check for potential ChromaDB corruption and clean if needed
+    if [ -d "chroma_db" ] && [ "$(find chroma_db -name '*.bin' -size 0 2>/dev/null | wc -l)" -gt 0 ]; then
+        print_status warn "Detected potential ChromaDB corruption (empty index files)"
+        print_status info "Cleaning ChromaDB for fresh start..."
+        rm -rf chroma_db/* 2>/dev/null
+    fi
 else
     print_status warn "ChromaDB directory may not be writable - this could cause database errors"
     WARNINGS=$((WARNINGS + 1))
