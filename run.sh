@@ -595,12 +595,21 @@ if lsof -i:8001 &>/dev/null 2>&1 || netstat -tuln 2>/dev/null | grep -q ":8001 "
         HEALTH_RESPONSE=$(curl -s -m 2 http://localhost:8001/api/health)
         print_status success "Backend - Running on port 8001 (healthy)"
         
-        # Test ChromaDB
-        DOCS_RESPONSE=$(curl -s -m 2 http://localhost:8001/api/documents 2>&1)
+        # Test ChromaDB connection and functionality
+        DOCS_RESPONSE=$(curl -s -m 5 http://localhost:8001/api/documents 2>&1)
         if echo "$DOCS_RESPONSE" | grep -q "indexed_documents"; then
             print_status success "ChromaDB - Connected successfully"
+            
+            # Test basic chat functionality if documents exist
+            DOC_COUNT=$(echo "$DOCS_RESPONSE" | grep -o '"[^"]*"' | wc -l 2>/dev/null)
+            if [ "$DOC_COUNT" -gt 0 ]; then
+                print_status success "ChromaDB - Found $DOC_COUNT indexed documents"
+            else
+                print_status info "ChromaDB - No documents indexed yet (add files to backend/knowledge_base/)"
+            fi
         else
-            print_status warn "ChromaDB - May have connection issues"
+            print_status warn "ChromaDB - Connection issues detected"
+            print_status info "Tip: If chat queries fail, try resetting with: curl -X POST 'http://localhost:8001/api/knowledge_base/reset?reset_type=soft'"
             WARNINGS=$((WARNINGS + 1))
         fi
     else
