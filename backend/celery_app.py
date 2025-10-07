@@ -35,22 +35,8 @@ celery_app.conf.update(
     task_time_limit=600,  # 10 minutes hard limit
 )
 
-# Lazy initialization of embeddings - only create when needed
-_embeddings_instance = None
+# Lazy initialization of text splitter
 _text_splitter_instance = None
-
-def get_embeddings():
-    """Lazy load embeddings to save memory."""
-    global _embeddings_instance
-    if _embeddings_instance is None:
-        logging.info(f"Initializing embeddings model: {settings.EMBEDDING_MODEL_NAME}...")
-        _embeddings_instance = HuggingFaceEmbeddings(
-            model_name=settings.EMBEDDING_MODEL_NAME,
-            model_kwargs={'device': 'cpu'},
-            encode_kwargs={'batch_size': settings.EMBEDDING_BATCH_SIZE, 'normalize_embeddings': True}
-        )
-        logging.info("✓ Embeddings model loaded successfully")
-    return _embeddings_instance
 
 def get_text_splitter():
     """Get or create text splitter instance with optimized chunking parameters."""
