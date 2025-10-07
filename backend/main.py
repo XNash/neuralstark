@@ -305,9 +305,8 @@ def _run_knowledge_base_search(input_json_string: str) -> str:
     logging.info(f"Query: {query}")
     retrieval_start = time.time()
     
-    # Use robust similarity search with multiple fallbacks
-    candidate_docs = robust_similarity_search(
-        current_vector_store, 
+    # Use singleton manager's similarity search with fallbacks
+    candidate_docs = chroma_manager.similarity_search_with_fallback(
         query, 
         k=settings.RETRIEVAL_K,
         filter=chroma_filter if chroma_filter else None
