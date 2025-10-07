@@ -1,15 +1,13 @@
 from celery import Celery
 from backend.config import settings
 from backend.document_parser import parse_document
-import chromadb
+from backend.chromadb_manager import get_chroma_manager
 import os
 import time
 import logging
 
 # LangChain imports for RAG
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_chroma import Chroma
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(message)s',
