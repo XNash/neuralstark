@@ -170,15 +170,10 @@ def process_document_sync(file_path: str, event_type: str):
     print(f"[SYNC] Processing document: {file_path} (Event: {event_type})")
     
     try:
-        # Initialize ChromaDB client
+        # Use singleton ChromaDB manager
         text_splitter = get_text_splitter()
-        
-        chroma_client = chromadb.PersistentClient(path=settings.CHROMA_DB_PATH)
-        vector_store = Chroma(
-             client=chroma_client,
-             embedding_function=get_embeddings(),
-             collection_name="knowledge_base_collection"
-        )
+        chroma_manager = get_chroma_manager()
+        vector_store = chroma_manager.get_vector_store()
 
         # Normalize file_path for consistent ID generation
         normalized_file_path = os.path.abspath(file_path)
