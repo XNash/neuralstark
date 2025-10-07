@@ -279,36 +279,20 @@ def _run_knowledge_base_search(input_json_string: str) -> str:
     if not query:
         return "Error: 'query' key is missing in the input JSON for KnowledgeBaseSearch."
 
-    # Create robust vector store with error handling
+    # Use singleton ChromaDB manager
     try:
-        # Try to create/get existing vector store
-        chroma_client = chromadb.PersistentClient(
-            path=settings.CHROMA_DB_PATH,
-            settings=chromadb.Settings(
-                anonymized_telemetry=False,
-                allow_reset=True
-            )
-        )
-        
-        current_vector_store = Chroma(
-            client=chroma_client,
-            embedding_function=embeddings,
-            collection_name="knowledge_base_collection"
-        )
+        chroma_manager = get_chroma_manager()
+        current_vector_store = chroma_manager.get_vector_store()
         
         # Check if collection has documents
-        doc_count = get_collection_info(chroma_client)
-        if doc_count == 0:
+        collection_info = chroma_manager.get_collection_info()
+        if collection_info.get("count", 0) == 0:
             logging.warning("No documents found in ChromaDB collection")
             return "Answer: No documents are currently indexed in the knowledge base. Please upload some documents first.\nSources: None"
             
     except Exception as e:
-        logging.error(f"Error initializing ChromaDB: {e}")
-        # Try to create a fresh vector store
-        current_vector_store, chroma_client = create_robust_vector_store()
-        
-        if not current_vector_store:
-            return "Answer: Unable to access the knowledge base due to technical issues. Please try again or contact support.\nSources: None"
+        logging.error(f"Error accessing ChromaDB: {e}")
+        return "Answer: Unable to access the knowledge base due to technical issues. Please try again or contact support.\nSources: None"
 
     # Build the filter for ChromaDB
     chroma_filter = {}
