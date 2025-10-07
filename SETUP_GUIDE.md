@@ -37,7 +37,7 @@ You should see:
 - ✅ Celery workers (3 workers)
 
 ### Access the Application
-- **Frontend**: https://retrieval-engine.preview.emergentagent.com
+- **Frontend**: https://ragpipeline.preview.emergentagent.com
 - **Backend API**: http://localhost:8001/docs
 
 ---
