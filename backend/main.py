@@ -255,8 +255,8 @@ logging.info("✓ Reranker model loaded successfully")
 # Initialize LLM for chat and agent reasoning
 llm = ChatGoogleGenerativeAI(model=settings.LLM_MODEL, google_api_key=settings.LLM_API_KEY)
 
-# Import robust ChromaDB utilities
-from backend.chromadb_fix import create_robust_vector_store, robust_similarity_search, get_collection_info
+# Import ChromaDB singleton manager
+from backend.chromadb_manager import get_chroma_manager
 
 # Custom Knowledge Base Search function with improved retrieval and reranking
 def _run_knowledge_base_search(input_json_string: str) -> str:
