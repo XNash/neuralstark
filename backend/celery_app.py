@@ -37,8 +37,41 @@ celery_app.conf.update(
     task_time_limit=600,  # 10 minutes hard limit
 )
 
-# Lazy initialization of text splitter
+# Lazy initialization of embeddings and text splitter
+# These are loaded once per worker process, NOT through the singleton manager
+# to avoid forking issues
+_embeddings_instance = None
 _text_splitter_instance = None
+_chroma_client_instance = None
+
+def get_embeddings():
+    """Lazy load embeddings in Celery worker (per-process, not singleton)"""
+    global _embeddings_instance
+    if _embeddings_instance is None:
+        logging.info(f"[Celery Worker] Loading embeddings: {settings.EMBEDDING_MODEL_NAME}...")
+        _embeddings_instance = HuggingFaceEmbeddings(
+            model_name=settings.EMBEDDING_MODEL_NAME,
+            model_kwargs={'device': 'cpu'},
+            encode_kwargs={'batch_size': settings.EMBEDDING_BATCH_SIZE, 'normalize_embeddings': True}
+        )
+        logging.info("[Celery Worker] ✓ Embeddings loaded")
+    return _embeddings_instance
+
+def get_chroma_client():
+    """Get ChromaDB client for Celery worker (with consistent settings)"""
+    global _chroma_client_instance
+    if _chroma_client_instance is None:
+        logging.info(f"[Celery Worker] Creating ChromaDB client...")
+        _chroma_client_instance = chromadb.PersistentClient(
+            path=settings.CHROMA_DB_PATH,
+            settings=chromadb.Settings(
+                anonymized_telemetry=False,
+                allow_reset=True,
+                is_persistent=True
+            )
+        )
+        logging.info("[Celery Worker] ✓ ChromaDB client created")
+    return _chroma_client_instance
 
 def get_text_splitter():
     """Get or create text splitter instance with optimized chunking parameters."""
