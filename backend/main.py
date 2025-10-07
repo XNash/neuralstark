@@ -255,6 +255,9 @@ logging.info("✓ Reranker model loaded successfully")
 # Initialize LLM for chat and agent reasoning
 llm = ChatGoogleGenerativeAI(model=settings.LLM_MODEL, google_api_key=settings.LLM_API_KEY)
 
+# Import robust ChromaDB utilities
+from backend.chromadb_fix import create_robust_vector_store, robust_similarity_search, get_collection_info
+
 # Custom Knowledge Base Search function with improved retrieval and reranking
 def _run_knowledge_base_search(input_json_string: str) -> str:
     """Performs an optimized knowledge base search with reranking for better accuracy.
@@ -276,56 +279,57 @@ def _run_knowledge_base_search(input_json_string: str) -> str:
     if not query:
         return "Error: 'query' key is missing in the input JSON for KnowledgeBaseSearch."
 
-    # Re-initialize ChromaDB client to ensure it reads the latest state from disk
-    chroma_client = chromadb.PersistentClient(path=settings.CHROMA_DB_PATH)
-    current_vector_store = Chroma(
-        client=chroma_client,
-        embedding_function=embeddings,
-        collection_name="knowledge_base_collection"
-    )
+    # Create robust vector store with error handling
+    try:
+        # Try to create/get existing vector store
+        chroma_client = chromadb.PersistentClient(
+            path=settings.CHROMA_DB_PATH,
+            settings=chromadb.Settings(
+                anonymized_telemetry=False,
+                allow_reset=True
+            )
+        )
+        
+        current_vector_store = Chroma(
+            client=chroma_client,
+            embedding_function=embeddings,
+            collection_name="knowledge_base_collection"
+        )
+        
+        # Check if collection has documents
+        doc_count = get_collection_info(chroma_client)
+        if doc_count == 0:
+            logging.warning("No documents found in ChromaDB collection")
+            return "Answer: No documents are currently indexed in the knowledge base. Please upload some documents first.\nSources: None"
+            
+    except Exception as e:
+        logging.error(f"Error initializing ChromaDB: {e}")
+        # Try to create a fresh vector store
+        current_vector_store, chroma_client = create_robust_vector_store()
+        
+        if not current_vector_store:
+            return "Answer: Unable to access the knowledge base due to technical issues. Please try again or contact support.\nSources: None"
 
     # Build the filter for ChromaDB
     chroma_filter = {}
     if source_type and source_type in ["internal", "external"]:
         chroma_filter["source_type"] = source_type
 
-    # Step 1: Retrieve more candidates (k=10) for reranking
-    search_kwargs = {"k": settings.RETRIEVAL_K}
-    if chroma_filter:
-        search_kwargs["filter"] = chroma_filter
-    
     logging.info(f"Retrieving top {settings.RETRIEVAL_K} candidates...")
     logging.info(f"Using ChromaDB path: {settings.CHROMA_DB_PATH}")
     logging.info(f"Collection name: knowledge_base_collection")
     logging.info(f"Query: {query}")
     retrieval_start = time.time()
     
-    # Use similarity_search_with_score for better filtering
-    try:
-        candidate_docs = current_vector_store.similarity_search_with_score(
-            query, 
-            k=settings.RETRIEVAL_K,
-            filter=chroma_filter if chroma_filter else None
-        )
-        logging.info(f"Retrieved {len(candidate_docs)} candidates in {time.time() - retrieval_start:.4f}s")
-    except Exception as e:
-        logging.error(f"Error during retrieval: {e}")
-        logging.error(f"Exception type: {type(e)}")
-        logging.error(f"Exception details: {str(e)}")
-        
-        # Try basic similarity search as fallback
-        try:
-            logging.info("Attempting fallback similarity_search...")
-            docs = current_vector_store.similarity_search(
-                query, 
-                k=settings.RETRIEVAL_K,
-                filter=chroma_filter if chroma_filter else None
-            )
-            candidate_docs = [(doc, 0.0) for doc in docs]
-            logging.info(f"Fallback successful with {len(candidate_docs)} documents")
-        except Exception as e2:
-            logging.error(f"Fallback also failed: {e2}")
-            return "Answer: Unable to search the knowledge base due to technical issues.\nSources: None"
+    # Use robust similarity search with multiple fallbacks
+    candidate_docs = robust_similarity_search(
+        current_vector_store, 
+        query, 
+        k=settings.RETRIEVAL_K,
+        filter=chroma_filter if chroma_filter else None
+    )
+    
+    logging.info(f"Retrieved {len(candidate_docs)} candidates in {time.time() - retrieval_start:.4f}s")
     
     if not candidate_docs:
         logging.warning("No documents found in knowledge base for this query")
