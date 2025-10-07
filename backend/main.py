@@ -652,20 +652,24 @@ async def reset_knowledge_base(reset_type: str):
         raise HTTPException(status_code=400, detail="Invalid reset_type. Must be 'hard' or 'soft'.")
 
     try:
-        # Clear the ChromaDB vector store using the client API
-        client = chromadb.PersistentClient(path=settings.CHROMA_DB_PATH)
-        # Use consistent collection name across the application
+        # Use singleton ChromaDB manager
+        chroma_manager = get_chroma_manager()
+        client = chroma_manager.get_client()
+        
+        # Clear the ChromaDB collection
         try:
             collection = client.get_collection("knowledge_base_collection")
             # Get all items in the collection to delete them by ID
-            # This is safer than deleting and recreating the collection
             results = collection.get()
             if results["ids"]:
                 collection.delete(ids=results["ids"])
             logging.info("Successfully cleared ChromaDB collection.")
+            
+            # Reset vector store instance
+            chroma_manager.reset_vector_store()
         except ValueError:
             # This error is raised if the collection does not exist, which is fine.
-            logging.info("ChromaDB collection not found, creating a new one.")
+            logging.info("ChromaDB collection not found, will be created on next use.")
 
         if reset_type == "hard":
             # Delete all files in internal and external knowledge base directories
