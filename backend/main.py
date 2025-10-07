@@ -557,14 +557,9 @@ async def chat_endpoint(request: ChatRequest):
 @app.get("/api/documents")
 async def list_documents():
     try:
-        # Re-initialize ChromaDB client to ensure it reads the latest state from disk
-        # This is a temporary solution for development; for production, consider a more efficient refresh mechanism
-        chroma_client = chromadb.PersistentClient(path=settings.CHROMA_DB_PATH)
-        current_vector_store = Chroma(
-            client=chroma_client,
-            embedding_function=embeddings,
-            collection_name="knowledge_base_collection"
-        )
+        # Use singleton ChromaDB manager
+        chroma_manager = get_chroma_manager()
+        current_vector_store = chroma_manager.get_vector_store()
 
         results = current_vector_store.get(include=['metadatas'])
         
