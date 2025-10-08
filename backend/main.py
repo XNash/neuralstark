@@ -699,3 +699,22 @@ async def reset_knowledge_base(reset_type: str):
     except Exception as e:
         logging.error(f"Error resetting knowledge base: {e}")
         raise HTTPException(status_code=500, detail=f"Error resetting knowledge base: {e}")
+
+@app.post("/api/rag/direct")
+async def direct_rag_query(request: ChatRequest):
+    """
+    Direct RAG query endpoint - bypasses agent for guaranteed RAG usage
+    This endpoint directly calls the knowledge base search function without agent decision-making.
+    Useful for testing and guaranteed RAG responses.
+    """
+    try:
+        # Build input for RAG function
+        input_data = json.dumps({"query": request.query})
+        
+        # Call RAG function directly
+        result = _run_knowledge_base_search(input_data)
+        
+        return {"response": result, "method": "direct_rag"}
+    except Exception as e:
+        logging.error(f"Error in direct RAG endpoint: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
