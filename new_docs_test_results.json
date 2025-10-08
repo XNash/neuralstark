@@ -1,0 +1,122 @@
+[
+  {
+    "doc_type": "XLSX - Sales Report",
+    "query": "What was the total Q4 sales amount in the sales report?",
+    "expected_file": "sales_report_q4_2024.xlsx",
+    "expected_answer": "1,549,000 or December as best month",
+    "status": "PASSED",
+    "retrieved_file": "sales_report_q4_2024.xlsx",
+    "score": 0.43540745973587036,
+    "time": 0.012355327606201172
+  },
+  {
+    "doc_type": "XLSX - Sales Report",
+    "query": "Who was the top performing sales representative?",
+    "expected_file": "sales_report_q4_2024.xlsx",
+    "expected_answer": "Michael Chen",
+    "status": "PASSED",
+    "retrieved_file": "sales_report_q4_2024.xlsx",
+    "score": 0.5930666327476501,
+    "time": 0.032265424728393555
+  },
+  {
+    "doc_type": "XLSX - Sales Report",
+    "query": "Which product sold the most units?",
+    "expected_file": "sales_report_q4_2024.xlsx",
+    "expected_answer": "Wireless Earbuds with 5,620 units",
+    "status": "PASSED",
+    "retrieved_file": "sales_report_q4_2024.xlsx",
+    "score": 0.6891880035400391,
+    "time": 0.008765220642089844
+  },
+  {
+    "doc_type": "DOCX - Project Proposal",
+    "query": "What is the budget for the AI chatbot project?",
+    "expected_file": "ai_chatbot_project_proposal.docx",
+    "expected_answer": "$450,000",
+    "status": "PASSED",
+    "retrieved_file": "ai_chatbot_project_proposal.docx",
+    "score": 0.31549572944641113,
+    "time": 0.0910642147064209
+  },
+  {
+    "doc_type": "DOCX - Project Proposal",
+    "query": "Who is the project manager for the AI chatbot?",
+    "expected_file": "ai_chatbot_project_proposal.docx",
+    "expected_answer": "Rebecca Foster",
+    "status": "PASSED",
+    "retrieved_file": "ai_chatbot_project_proposal.docx",
+    "score": 0.38465309143066406,
+    "time": 0.00908803939819336
+  },
+  {
+    "doc_type": "DOCX - Project Proposal",
+    "query": "What AI model will be used in the chatbot project?",
+    "expected_file": "ai_chatbot_project_proposal.docx",
+    "expected_answer": "GPT-4 Turbo",
+    "status": "PASSED",
+    "retrieved_file": "ai_chatbot_project_proposal.docx",
+    "score": 0.3111494779586792,
+    "time": 0.09136581420898438
+  },
+  {
+    "doc_type": "PDF - Legal Contract",
+    "query": "What is the software license agreement number?",
+    "expected_file": "software_license_agreement.pdf",
+    "expected_answer": "SLA-2024-7856",
+    "status": "PASSED",
+    "retrieved_file": "software_license_agreement.pdf",
+    "score": 0.43635761737823486,
+    "time": 0.009246349334716797
+  },
+  {
+    "doc_type": "PDF - Legal Contract",
+    "query": "What is the total license fee in the agreement?",
+    "expected_file": "software_license_agreement.pdf",
+    "expected_answer": "$125,000",
+    "status": "PASSED",
+    "retrieved_file": "software_license_agreement.pdf",
+    "score": 0.43665891885757446,
+    "time": 0.08998870849609375
+  },
+  {
+    "doc_type": "PDF - Legal Contract",
+    "query": "How many concurrent users are permitted in the license?",
+    "expected_file": "software_license_agreement.pdf",
+    "expected_answer": "500 users",
+    "status": "PASSED",
+    "retrieved_file": "software_license_agreement.pdf",
+    "score": 0.593218207359314,
+    "time": 0.008237600326538086
+  },
+  {
+    "doc_type": "PDF OCR - Receipt",
+    "query": "What is the receipt number from the restaurant?",
+    "expected_file": "restaurant_receipt_scan.pdf",
+    "expected_answer": "R-2024-08956",
+    "status": "PASSED",
+    "retrieved_file": "restaurant_receipt_scan.pdf",
+    "score": 0.4460631012916565,
+    "time": 0.01374363899230957
+  },
+  {
+    "doc_type": "PDF OCR - Receipt",
+    "query": "What was the total amount on the restaurant receipt?",
+    "expected_file": "restaurant_receipt_scan.pdf",
+    "expected_answer": "$151.17",
+    "status": "PASSED",
+    "retrieved_file": "restaurant_receipt_scan.pdf",
+    "score": 0.4616376757621765,
+    "time": 0.08189010620117188
+  },
+  {
+    "doc_type": "PDF OCR - Receipt",
+    "query": "Who was the server at the restaurant?",
+    "expected_file": "restaurant_receipt_scan.pdf",
+    "expected_answer": "Maria Rodriguez",
+    "status": "PASSED",
+    "retrieved_file": "restaurant_receipt_scan.pdf",
+    "score": 0.6263278722763062,
+    "time": 0.010390758514404297
+  }
+]
