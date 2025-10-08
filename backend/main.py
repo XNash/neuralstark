@@ -719,3 +719,102 @@ async def direct_rag_query(request: ChatRequest):
     except Exception as e:
         logging.error(f"Error in direct RAG endpoint: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/chromadb/health")
+async def chromadb_health_check():
+    """
+    Comprehensive ChromaDB health check and diagnostics
+    """
+    try:
+        robustness_manager = create_robustness_manager(settings.CHROMA_DB_PATH)
+        health_status = robustness_manager.health_check()
+        
+        return {
+            "status": "healthy" if health_status["healthy"] else "unhealthy",
+            "health_check": health_status,
+            "timestamp": datetime.datetime.now().isoformat()
+        }
+    except Exception as e:
+        logging.error(f"ChromaDB health check failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Health check failed: {e}")
+
+@app.post("/api/chromadb/backup")
+async def create_chromadb_backup():
+    """
+    Create a manual backup of ChromaDB
+    """
+    try:
+        robustness_manager = create_robustness_manager(settings.CHROMA_DB_PATH)
+        backup_path = robustness_manager.create_backup("manual_api_request")
+        
+        if backup_path:
+            return {
+                "status": "success",
+                "backup_path": backup_path,
+                "timestamp": datetime.datetime.now().isoformat()
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Failed to create backup")
+    except Exception as e:
+        logging.error(f"ChromaDB backup failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/chromadb/recovery")
+async def auto_recovery():
+    """
+    Trigger automatic recovery for ChromaDB issues
+    """
+    try:
+        robustness_manager = create_robustness_manager(settings.CHROMA_DB_PATH)
+        
+        # First check health to determine recovery type
+        health_status = robustness_manager.health_check()
+        
+        if health_status["healthy"]:
+            return {
+                "status": "no_recovery_needed",
+                "message": "ChromaDB is healthy, no recovery required"
+            }
+        
+        # Determine recovery type based on issues
+        corruption_type = "general"
+        if "connection" in str(health_status.get("issues", [])).lower():
+            corruption_type = "connection_failure"
+        elif "empty" in str(health_status.get("warnings", [])).lower():
+            corruption_type = "empty_files"
+        
+        success = robustness_manager.auto_recovery(corruption_type)
+        
+        if success:
+            return {
+                "status": "recovery_successful",
+                "corruption_type": corruption_type,
+                "message": "ChromaDB recovery completed successfully"
+            }
+        else:
+            return {
+                "status": "recovery_failed", 
+                "corruption_type": corruption_type,
+                "message": "Recovery attempt failed, manual intervention may be required"
+            }
+            
+    except Exception as e:
+        logging.error(f"ChromaDB recovery failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/chromadb/status")
+async def chromadb_status_report():
+    """
+    Get comprehensive ChromaDB status report
+    """
+    try:
+        robustness_manager = create_robustness_manager(settings.CHROMA_DB_PATH)
+        status_report = robustness_manager.get_status_report()
+        
+        return {
+            "status_report": status_report,
+            "timestamp": datetime.datetime.now().isoformat()
+        }
+    except Exception as e:
+        logging.error(f"ChromaDB status report failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
