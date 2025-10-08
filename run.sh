@@ -91,19 +91,21 @@ else
 fi
 
 # Ensure ChromaDB directory is properly initialized
-if [ -w "chroma_db" ]; then
+if [ -w "$PROJECT_ROOT/chroma_db" ]; then
     print_status success "ChromaDB directory is writable"
     
     # Check for potential ChromaDB corruption and clean if needed
-    if [ -d "chroma_db" ] && [ "$(find chroma_db -name '*.bin' -size 0 2>/dev/null | wc -l)" -gt 0 ]; then
+    if [ -d "$PROJECT_ROOT/chroma_db" ] && [ "$(find "$PROJECT_ROOT/chroma_db" -name '*.bin' -size 0 2>/dev/null | wc -l)" -gt 0 ]; then
         print_status warn "Detected potential ChromaDB corruption (empty index files)"
         print_status info "Cleaning ChromaDB for fresh start..."
-        rm -rf chroma_db/* 2>/dev/null
+        rm -rf "$PROJECT_ROOT/chroma_db"/* 2>/dev/null
     fi
 else
     print_status warn "ChromaDB directory may not be writable - this could cause database errors"
     WARNINGS=$((WARNINGS + 1))
 fi
+
+LOG_DIR="$PROJECT_ROOT/logs"
 
 LOG_DIR="$SCRIPT_DIR/logs"
 
