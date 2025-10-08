@@ -408,8 +408,12 @@ class ChromaDBRobustnessManager:
         
         return recommendations
 
-def create_robustness_manager(chroma_path: str) -> ChromaDBRobustnessManager:
+def create_robustness_manager(chroma_path: str = None) -> ChromaDBRobustnessManager:
     """Factory function to create robustness manager"""
+    if chroma_path is None:
+        # Use relative path from project root
+        project_root = Path(__file__).resolve().parent.parent
+        chroma_path = str(project_root / "chroma_db")
     return ChromaDBRobustnessManager(chroma_path)
 
 # Example usage and testing
