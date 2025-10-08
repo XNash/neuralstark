@@ -400,8 +400,9 @@ def run_challenging_document_tests():
         print("   - Add more diverse test documents")
         print("   - Ensure all document formats are supported")
     
-    # Save detailed results
-    results_file = "/app/challenging_rag_test_results.json"
+    # Save detailed results - Use relative path
+    project_root = Path(__file__).resolve().parent
+    results_file = project_root / "challenging_rag_test_results.json"
     try:
         with open(results_file, 'w') as f:
             json.dump({
