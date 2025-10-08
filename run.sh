@@ -31,9 +31,10 @@ print_status() {
     esac
 }
 
-# Get script directory
+# Get script directory (project root)
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd "$SCRIPT_DIR"
+PROJECT_ROOT="$SCRIPT_DIR"
+cd "$PROJECT_ROOT"
 
 ERRORS=0
 WARNINGS=0
