@@ -46,11 +46,11 @@ print_status section "Phase 1: Directory Setup"
 
 print_status info "Creating required directories..."
 
-# Create directories with error checking
-mkdir -p backend/knowledge_base/internal 2>/dev/null
-mkdir -p backend/knowledge_base/external 2>/dev/null
-mkdir -p chroma_db 2>/dev/null
-mkdir -p logs 2>/dev/null
+# Create directories with error checking (relative to project root)
+mkdir -p "$PROJECT_ROOT/backend/knowledge_base/internal" 2>/dev/null
+mkdir -p "$PROJECT_ROOT/backend/knowledge_base/external" 2>/dev/null
+mkdir -p "$PROJECT_ROOT/chroma_db" 2>/dev/null
+mkdir -p "$PROJECT_ROOT/logs" 2>/dev/null
 
 # Verify each directory individually
 MISSING_DIRS=""
