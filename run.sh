@@ -55,19 +55,19 @@ mkdir -p "$PROJECT_ROOT/logs" 2>/dev/null
 # Verify each directory individually
 MISSING_DIRS=""
 
-if [ ! -d "backend/knowledge_base/internal" ]; then
+if [ ! -d "$PROJECT_ROOT/backend/knowledge_base/internal" ]; then
     MISSING_DIRS="$MISSING_DIRS backend/knowledge_base/internal"
 fi
 
-if [ ! -d "backend/knowledge_base/external" ]; then
+if [ ! -d "$PROJECT_ROOT/backend/knowledge_base/external" ]; then
     MISSING_DIRS="$MISSING_DIRS backend/knowledge_base/external"
 fi
 
-if [ ! -d "chroma_db" ]; then
+if [ ! -d "$PROJECT_ROOT/chroma_db" ]; then
     MISSING_DIRS="$MISSING_DIRS chroma_db"
 fi
 
-if [ ! -d "logs" ]; then
+if [ ! -d "$PROJECT_ROOT/logs" ]; then
     MISSING_DIRS="$MISSING_DIRS logs"
 fi
 
