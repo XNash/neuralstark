@@ -83,7 +83,7 @@ else
 fi
 
 # Set permissions and ensure proper ChromaDB setup
-chmod -R 755 chroma_db backend/knowledge_base logs 2>/dev/null
+chmod -R 755 "$PROJECT_ROOT/chroma_db" "$PROJECT_ROOT/backend/knowledge_base" "$PROJECT_ROOT/logs" 2>/dev/null
 if [ $? -eq 0 ]; then
     print_status success "Directory permissions set (755)"
 else
