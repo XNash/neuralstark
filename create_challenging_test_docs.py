@@ -1616,6 +1616,8 @@ async function processDocument(filePath: string) {
 
 ```python
 import asyncio
+import os
+from typing import List
 from neuralcorp import AsyncNeuralCorpClient, NeuralCorpError
 
 client = AsyncNeuralCorpClient(
