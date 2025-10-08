@@ -1,0 +1,170 @@
+{
+  "total_documents": 18,
+  "total_chunks": 20,
+  "test_results": [
+    {
+      "query": "What was the total revenue for TechCorp in 2024?",
+      "expected_keywords": [
+        "12.5 million",
+        "revenue",
+        "2024"
+      ],
+      "expected_docs": [
+        "financial_report_2024.pdf"
+      ],
+      "category": "Financial",
+      "status": "passed",
+      "retrieved_doc": "financial_report_2024.pdf",
+      "score": 0.2634574770927429,
+      "retrieval_time": 0.07332682609558105
+    },
+    {
+      "query": "What is the authentication API endpoint and what does it return?",
+      "expected_keywords": [
+        "POST",
+        "/api/auth/login",
+        "token"
+      ],
+      "expected_docs": [
+        "api_technical_spec.pdf"
+      ],
+      "category": "Technical",
+      "status": "passed",
+      "retrieved_doc": "api_technical_spec.pdf",
+      "score": 0.4662778377532959,
+      "retrieval_time": 0.09748339653015137
+    },
+    {
+      "query": "Who are the employees in the Engineering department?",
+      "expected_keywords": [
+        "Alice Johnson",
+        "David Brown",
+        "Engineering"
+      ],
+      "expected_docs": [
+        "employee_database.xlsx"
+      ],
+      "category": "HR Data",
+      "status": "passed",
+      "retrieved_doc": "test_spreadsheet.csv",
+      "score": 0.5544848442077637,
+      "retrieval_time": 0.19004583358764648
+    },
+    {
+      "query": "What products do we have in stock and their prices?",
+      "expected_keywords": [
+        "Laptop",
+        "Mouse",
+        "SKU"
+      ],
+      "expected_docs": [
+        "product_inventory.xlsx"
+      ],
+      "category": "Inventory",
+      "status": "passed",
+      "retrieved_doc": "product_inventory.xlsx",
+      "score": 0.5997320413589478,
+      "retrieval_time": 0.09805011749267578
+    },
+    {
+      "query": "What is the invoice number and amount due?",
+      "expected_keywords": [
+        "INV-2024-001",
+        "5,450",
+        "invoice"
+      ],
+      "expected_docs": [
+        "invoice_ocr_test.png"
+      ],
+      "category": "OCR - Invoice",
+      "status": "passed",
+      "retrieved_doc": "test_image3.jpeg",
+      "score": 0.24984294176101685,
+      "retrieval_time": 0.11925530433654785
+    },
+    {
+      "query": "Who attended the Q4 planning meeting?",
+      "expected_keywords": [
+        "Sarah",
+        "Mike",
+        "Jennifer",
+        "Tom"
+      ],
+      "expected_docs": [
+        "meeting_notes_ocr.png"
+      ],
+      "category": "OCR - Meeting",
+      "status": "passed",
+      "retrieved_doc": "meeting_notes_ocr.png",
+      "score": 0.30543726682662964,
+      "retrieval_time": 0.18955564498901367
+    },
+    {
+      "query": "What is the database configuration in the application?",
+      "expected_keywords": [
+        "db.example.com",
+        "5432",
+        "analytics_db"
+      ],
+      "expected_docs": [
+        "app_config.json"
+      ],
+      "category": "Configuration",
+      "status": "passed",
+      "retrieved_doc": "app_config.json",
+      "score": 0.688626766204834,
+      "retrieval_time": 0.1887526512145996
+    },
+    {
+      "query": "What machine learning algorithm performed best for churn prediction?",
+      "expected_keywords": [
+        "XGBoost",
+        "84.7",
+        "accuracy"
+      ],
+      "expected_docs": [
+        "research_notes.txt"
+      ],
+      "category": "Research",
+      "status": "passed",
+      "retrieved_doc": "research_notes.txt",
+      "score": 0.30854570865631104,
+      "retrieval_time": 0.11657166481018066
+    },
+    {
+      "query": "What are the strategic initiatives for 2025?",
+      "expected_keywords": [
+        "Digital Transformation",
+        "Market Expansion",
+        "AI"
+      ],
+      "expected_docs": [
+        "financial_report_2024.pdf"
+      ],
+      "category": "Strategic",
+      "status": "passed",
+      "retrieved_doc": "financial_report_2024.pdf",
+      "score": 0.4703666567802429,
+      "retrieval_time": 0.10000348091125488
+    },
+    {
+      "query": "What is the average employee salary?",
+      "expected_keywords": [
+        "salary",
+        "average",
+        "employee"
+      ],
+      "expected_docs": [
+        "employee_database.xlsx"
+      ],
+      "category": "HR Analytics",
+      "status": "passed",
+      "retrieved_doc": "employee_database.xlsx",
+      "score": 0.405339777469635,
+      "retrieval_time": 0.08423614501953125
+    }
+  ],
+  "accuracy_score": 100.0,
+  "avg_retrieval_time": 0.12572810649871827,
+  "errors": []
+}
