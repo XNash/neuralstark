@@ -1,0 +1,98 @@
+{
+  "chromadb_health": "healthy",
+  "documents_indexed": [
+    "test_document.pdf",
+    "test_data.json",
+    "test_markdown.md",
+    "test_text.txt",
+    "test_spreadsheet.xlsx",
+    "test_document.docx",
+    "test_spreadsheet.csv"
+  ],
+  "test_queries": [
+    {
+      "query": "What information is in the test text file?",
+      "expected_docs": [
+        "test_text.txt"
+      ],
+      "description": "Simple text file retrieval",
+      "status": "passed",
+      "retrieved_docs": [
+        "test_text.txt",
+        "test_document.pdf",
+        "test_document.docx"
+      ]
+    },
+    {
+      "query": "What data is in the spreadsheet?",
+      "expected_docs": [
+        "test_spreadsheet.xlsx",
+        "test_spreadsheet.csv"
+      ],
+      "description": "Spreadsheet data retrieval",
+      "status": "passed",
+      "retrieved_docs": [
+        "test_spreadsheet.xlsx",
+        "test_spreadsheet.csv",
+        "test_text.txt"
+      ]
+    },
+    {
+      "query": "What is in the PDF document?",
+      "expected_docs": [
+        "test_document.pdf"
+      ],
+      "description": "PDF document retrieval",
+      "status": "passed",
+      "retrieved_docs": [
+        "test_document.pdf",
+        "test_document.docx",
+        "test_text.txt"
+      ]
+    },
+    {
+      "query": "What content is in the Word document?",
+      "expected_docs": [
+        "test_document.docx"
+      ],
+      "description": "DOCX document retrieval",
+      "status": "passed",
+      "retrieved_docs": [
+        "test_document.docx",
+        "test_text.txt",
+        "test_document.pdf"
+      ]
+    },
+    {
+      "query": "What is in the markdown file?",
+      "expected_docs": [
+        "test_markdown.md"
+      ],
+      "description": "Markdown file retrieval",
+      "status": "passed",
+      "retrieved_docs": [
+        "test_markdown.md",
+        "test_document.docx",
+        "test_text.txt"
+      ]
+    },
+    {
+      "query": "What JSON data do you have?",
+      "expected_docs": [
+        "test_data.json"
+      ],
+      "description": "JSON file retrieval",
+      "status": "passed",
+      "retrieved_docs": [
+        "test_data.json",
+        "test_spreadsheet.csv",
+        "test_text.txt"
+      ]
+    }
+  ],
+  "accuracy_score": 100.0,
+  "errors": [],
+  "warnings": [
+    "Collection not created yet"
+  ]
+}
