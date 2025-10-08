@@ -19,9 +19,10 @@ from reportlab.pdfgen import canvas
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 
-# Directory setup
-INTERNAL_KB = Path("/app/backend/knowledge_base/internal")
-EXTERNAL_KB = Path("/app/backend/knowledge_base/external")
+# Directory setup - Use relative paths from project root
+PROJECT_ROOT = Path(__file__).resolve().parent
+INTERNAL_KB = PROJECT_ROOT / "backend" / "knowledge_base" / "internal"
+EXTERNAL_KB = PROJECT_ROOT / "backend" / "knowledge_base" / "external"
 INTERNAL_KB.mkdir(exist_ok=True, parents=True)
 EXTERNAL_KB.mkdir(exist_ok=True, parents=True)
 
